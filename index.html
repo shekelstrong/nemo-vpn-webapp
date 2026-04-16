@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nemo VPN VIP</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="pb-24">
+
+    <div class="fixed top-0 left-0 right-0 z-50 glass rounded-b-2xl px-4 py-3 flex justify-between items-center mb-6">
+        <button onclick="switchTab('tariff')" id="tab-tariff" class="text-sm font-semibold text-blue-400 transition-colors px-3 py-1">Подписка</button>
+        <button onclick="switchTab('tasks')" id="tab-tasks" class="text-sm font-semibold text-gray-400 transition-colors px-3 py-1">Задания</button>
+        <button onclick="switchTab('help')" id="tab-help" class="text-sm font-semibold text-gray-400 transition-colors px-3 py-1">Помощь</button>
+    </div>
+
+    <div class="pt-20 px-4">
+        
+        <div id="content-tariff" class="tab-content active space-y-6">
+            <div class="text-center">
+                <h1 class="text-2xl font-bold mb-1">VIP Обход</h1>
+                <p class="text-sm text-gray-400">Настройте идеальный план под себя</p>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">Срок и лимит трафика</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="selectDuration(1)" id="dur-1" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">1 Месяц</div>
+                        <div class="text-sm text-blue-300 mt-1"><i class="fa-solid fa-bolt mr-1"></i> 100 ГБ</div>
+                    </div>
+                    <div onclick="selectDuration(3)" id="dur-3" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">3 Месяца</div>
+                        <div class="text-sm text-blue-300 mt-1"><i class="fa-solid fa-bolt mr-1"></i> 350 ГБ</div>
+                    </div>
+                    <div onclick="selectDuration(6)" id="dur-6" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">6 Месяцев</div>
+                        <div class="text-sm text-blue-300 mt-1"><i class="fa-solid fa-bolt mr-1"></i> 800 ГБ</div>
+                    </div>
+                    <div onclick="selectDuration(12)" id="dur-12" class="glass rounded-xl p-4 cursor-pointer transition-all relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-blue-500 text-xs px-2 py-1 rounded-bl-lg font-bold">ХИТ</div>
+                        <div class="text-lg font-bold">1 Год</div>
+                        <div class="text-sm text-blue-300 mt-1"><i class="fa-solid fa-bolt mr-1"></i> 2 ТБ</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-lg">Устройства</h3>
+                    <p class="text-xs text-gray-400 mt-1">+100 ₽ за каждое доп. устройство</p>
+                </div>
+                <div class="flex items-center space-x-4 bg-white/5 rounded-full px-2 py-1">
+                    <button onclick="changeDevices(-1)" class="w-8 h-8 rounded-full flex items-center justify-center text-xl text-gray-300 hover:bg-white/10 transition">-</button>
+                    <span id="device-count" class="font-bold text-lg min-w-[1ch] text-center">1</span>
+                    <button onclick="changeDevices(1)" class="w-8 h-8 rounded-full flex items-center justify-center text-xl text-blue-400 hover:bg-white/10 transition">+</button>
+                </div>
+            </div>
+            
+            <div class="text-center text-sm text-gray-400 px-4">
+                Сумма будет рассчитана автоматически. Оплата происходит через вашего бота в Telegram.
+            </div>
+        </div>
+
+        <div id="content-tasks" class="tab-content space-y-4">
+            <h2 class="text-xl font-bold mb-4">Бонусы и Дни</h2>
+            
+            <div class="glass rounded-2xl p-5 relative overflow-hidden">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-bold text-lg">Подписка на канал</h3>
+                        <p class="text-xs text-gray-400 mt-1">NEMO VPN INFO</p>
+                    </div>
+                    <div class="bg-blue-500/20 text-blue-400 text-xs font-bold px-2 py-1 rounded-lg">
+                        +3 ДНЯ
+                    </div>
+                </div>
+                <button onclick="checkSubscription()" id="btn-check-sub" class="w-full py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold transition mt-2">
+                    Проверить подписку
+                </button>
+            </div>
+
+            <div class="glass rounded-2xl p-5">
+                <h3 class="font-bold text-lg mb-1">Приглашай друзей</h3>
+                <p class="text-xs text-gray-400 mb-4">Получай % на баланс и бесплатные дни за активных рефералов.</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center text-sm">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-user"></i></div>
+                        <div class="flex-1">1 друг оплатил</div>
+                        <div class="font-bold text-blue-400">+5 дней</div>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-users"></i></div>
+                        <div class="flex-1">5 друзей оплатили</div>
+                        <div class="font-bold text-blue-400">+14 дней</div>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-users-rays"></i></div>
+                        <div class="flex-1">10 друзей оплатили</div>
+                        <div class="font-bold text-blue-400">+30 дней</div>
+                    </div>
+                </div>
+                <button onclick="tg.close()" class="w-full py-2 bg-blue-500 hover:bg-blue-600 rounded-xl text-sm font-semibold transition mt-5 text-white">
+                    Взять ссылку в боте
+                </button>
+            </div>
+        </div>
+
+        <div id="content-help" class="tab-content space-y-4">
+            <h2 class="text-xl font-bold mb-4">Инструкции</h2>
+            
+            <a href="#" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
+                <div class="text-2xl text-white w-10 text-center"><i class="fa-brands fa-apple"></i></div>
+                <div class="ml-3 flex-1">
+                    <div class="font-bold">iOS (iPhone/iPad)</div>
+                    <div class="text-xs text-gray-400">Приложение Happ / V2BOX</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-500 text-sm"></i>
+            </a>
+
+            <a href="#" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
+                <div class="text-2xl text-green-400 w-10 text-center"><i class="fa-brands fa-android"></i></div>
+                <div class="ml-3 flex-1">
+                    <div class="font-bold">Android</div>
+                    <div class="text-xs text-gray-400">Приложение v2rayNG</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-500 text-sm"></i>
+            </a>
+
+            <a href="#" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
+                <div class="text-2xl text-gray-300 w-10 text-center"><i class="fa-solid fa-desktop"></i></div>
+                <div class="ml-3 flex-1">
+                    <div class="font-bold">PC / Mac</div>
+                    <div class="text-xs text-gray-400">Приложение V2BOX / Nekoray</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-500 text-sm"></i>
+            </a>
+
+            <div class="mt-8">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold mb-3 pl-1">Остались вопросы?</h2>
+                <a href="https://t.me/nedopekin" target="_blank" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10 border-blue-500/30">
+                    <div class="text-2xl text-blue-400 w-10 text-center"><i class="fa-solid fa-headset"></i></div>
+                    <div class="ml-3 flex-1">
+                        <div class="font-bold">Служба поддержки</div>
+                        <div class="text-xs text-gray-400">@nedopekin</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-gray-500 text-sm"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
