@@ -1,0 +1,77 @@
+/* =========================================================
+   Nemo VPN VIP - Styles
+   Эффект Liquid Glass и адаптация под Telegram WebApp
+========================================================= */
+
+/* Базовые переменные (на случай если открыто в браузере, а не в ТГ) */
+:root {
+    --tg-theme-bg-color: #0f172a;
+    --tg-theme-text-color: #ffffff;
+    --tg-theme-button-color: #3b82f6;
+    --tg-theme-button-text-color: #ffffff;
+}
+
+body {
+    background-color: var(--tg-theme-bg-color);
+    /* Создаем красивые неоновые блики на фоне */
+    background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                      radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+    background-attachment: fixed;
+    color: var(--tg-theme-text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    
+    /* Запрет выделения текста, чтобы ощущалось как нативное приложение iOS/Android */
+    user-select: none; 
+    -webkit-user-select: none;
+}
+
+/* =========================================================
+   Эффект Liquid Glass (Стекломорфизм)
+========================================================= */
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px); /* Для поддержки Safari и iOS */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Активное состояние карточки (выбранный тариф) */
+.glass-active {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+}
+
+/* =========================================================
+   Логика вкладок и анимации
+========================================================= */
+.tab-content {
+    display: none;
+    /* Плавное появление снизу вверх */
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   Скрытие скроллбара для эстетики
+========================================================= */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
