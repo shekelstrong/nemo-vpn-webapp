@@ -69,43 +69,50 @@
             <h2 class="text-xl font-bold mb-4">Бонусы и Дни</h2>
             
             <div class="glass rounded-2xl p-5 relative overflow-hidden">
-                <div class="flex justify-between items-start mb-3">
+                <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="font-bold text-lg">Подписка на канал</h3>
-                        <p class="text-xs text-gray-400 mt-1">NEMO VPN INFO</p>
+                        <p class="text-xs text-gray-400 mt-1">NEMO VPN OFFICIAL</p>
                     </div>
                     <div class="bg-blue-500/20 text-blue-400 text-xs font-bold px-2 py-1 rounded-lg">
                         +3 ДНЯ
                     </div>
                 </div>
-                <button onclick="checkSubscription()" id="btn-check-sub" class="w-full py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold transition mt-2">
-                    Проверить подписку
-                </button>
+                
+                <div class="space-y-2">
+                    <a href="https://t.me/nemo_vpn_official" target="_blank" class="block w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-center text-sm font-bold transition">
+                        <i class="fa-brands fa-telegram mr-2"></i> Подписаться на канал
+                    </a>
+                    <button onclick="checkSubscription()" id="btn-check-sub" class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-semibold transition">
+                        Проверить подписку
+                    </button>
+                </div>
             </div>
 
             <div class="glass rounded-2xl p-5">
                 <h3 class="font-bold text-lg mb-1">Приглашай друзей</h3>
                 <p class="text-xs text-gray-400 mb-4">Получай % на баланс и бесплатные дни за активных рефералов.</p>
                 
-                <div class="space-y-4">
+                <div class="space-y-4 mb-6">
                     <div class="flex items-center text-sm">
                         <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-user"></i></div>
-                        <div class="flex-1">1 друг оплатил</div>
+                        <div class="flex-1 text-gray-300">1 друг оплатил</div>
                         <div class="font-bold text-blue-400">+5 дней</div>
                     </div>
                     <div class="flex items-center text-sm">
                         <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-users"></i></div>
-                        <div class="flex-1">5 друзей оплатили</div>
+                        <div class="flex-1 text-gray-300">5 друзей оплатили</div>
                         <div class="font-bold text-blue-400">+14 дней</div>
                     </div>
                     <div class="flex items-center text-sm">
                         <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-users-rays"></i></div>
-                        <div class="flex-1">10 друзей оплатили</div>
+                        <div class="flex-1 text-gray-300">10 друзей оплатили</div>
                         <div class="font-bold text-blue-400">+30 дней</div>
                     </div>
                 </div>
-                <button onclick="tg.close()" class="w-full py-2 bg-blue-500 hover:bg-blue-600 rounded-xl text-sm font-semibold transition mt-5 text-white">
-                    Взять ссылку в боте
+                
+                <button onclick="shareReferral()" class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl text-sm font-bold transition text-white">
+                    Пригласить друга
                 </button>
             </div>
         </div>
