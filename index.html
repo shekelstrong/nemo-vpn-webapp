@@ -12,13 +12,48 @@
 <body class="pb-24">
 
     <div class="fixed top-0 left-0 right-0 z-50 glass rounded-b-2xl px-4 py-3 flex justify-between items-center mb-6">
-        <button onclick="switchTab('tariff')" id="tab-tariff" class="text-sm font-semibold text-blue-400 transition-colors px-3 py-1">Подписка</button>
-        <button onclick="switchTab('tasks')" id="tab-tasks" class="text-sm font-semibold text-gray-400 transition-colors px-3 py-1">Задания</button>
-        <button onclick="switchTab('help')" id="tab-help" class="text-sm font-semibold text-gray-400 transition-colors px-3 py-1">Помощь</button>
+        <button onclick="switchTab('profile')" id="tab-profile" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">Профиль</button>
+        <button onclick="switchTab('tariff')" id="tab-tariff" class="text-sm font-semibold text-blue-400 transition-colors px-2 py-1">Подписка</button>
+        <button onclick="switchTab('tasks')" id="tab-tasks" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">Задания</button>
+        <button onclick="switchTab('help')" id="tab-help" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">Помощь</button>
     </div>
 
     <div class="pt-20 px-4">
         
+        <div id="content-profile" class="tab-content space-y-6">
+            <div class="glass rounded-3xl p-6 text-center space-y-4">
+                <div class="relative inline-block">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=N&background=3b82f6&color=fff" class="w-24 h-24 rounded-full border-4 border-blue-500/30 mx-auto shadow-lg shadow-blue-500/20">
+                    <div id="badge-tier" class="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] font-bold px-2 py-1 rounded-full border-2 border-[#0f172a]">VIP</div>
+                </div>
+                <div>
+                    <h1 id="user-name" class="text-2xl font-bold tracking-tight">Загрузка...</h1>
+                    <p class="text-blue-400 text-sm font-medium">Статус: <span id="status-text">Активен</span></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass rounded-2xl p-4">
+                    <div class="text-gray-400 text-xs uppercase font-bold mb-1">Осталось дней</div>
+                    <div id="days-left" class="text-2xl font-black">0</div>
+                </div>
+                <div class="glass rounded-2xl p-4">
+                    <div class="text-gray-400 text-xs uppercase font-bold mb-1">Устройства</div>
+                    <div id="profile-devices" class="text-2xl font-black text-blue-400">1</div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-5 space-y-3">
+                <div class="flex justify-between items-end">
+                    <div class="text-sm font-bold">Использовано трафика</div>
+                    <div class="text-xs text-gray-400"><span id="used-gb" class="text-blue-400 font-bold">0</span> / <span id="total-gb">0</span> ГБ</div>
+                </div>
+                <div class="w-full bg-white/5 rounded-full h-3 overflow-hidden">
+                    <div id="traffic-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="content-tariff" class="tab-content active space-y-6">
             <div class="text-center">
                 <h1 class="text-2xl font-bold mb-1">VIP Обход</h1>
@@ -26,7 +61,7 @@
             </div>
 
             <div class="space-y-3">
-                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">Срок и лимит трафика</h2>
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">1. Выберите срок и лимит</h2>
                 <div class="grid grid-cols-2 gap-3">
                     <div onclick="selectDuration(1)" id="dur-1" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">1 Месяц</div>
@@ -50,7 +85,7 @@
 
             <div class="glass rounded-2xl p-5 flex items-center justify-between">
                 <div>
-                    <h3 class="font-bold text-lg">Устройства</h3>
+                    <h3 class="font-bold text-lg">2. Устройства</h3>
                     <p class="text-xs text-gray-400 mt-1">+100 ₽ за каждое доп. устройство</p>
                 </div>
                 <div class="flex items-center space-x-4 bg-white/5 rounded-full px-2 py-1">
@@ -59,14 +94,24 @@
                     <button onclick="changeDevices(1)" class="w-8 h-8 rounded-full flex items-center justify-center text-xl text-blue-400 hover:bg-white/10 transition">+</button>
                 </div>
             </div>
-            
-            <div class="text-center text-sm text-gray-400 px-4">
-                Сумма будет рассчитана автоматически. Оплата происходит через вашего бота в Telegram.
+
+            <div class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">3. Способ оплаты</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="selectPayment('cryptopay')" id="pay-cryptopay" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3 border-2 border-transparent">
+                        <div class="text-xl text-yellow-500"><i class="fa-brands fa-bitcoin"></i></div>
+                        <div class="text-sm font-bold">Крипто</div>
+                    </div>
+                    <div onclick="selectPayment('platega')" id="pay-platega" class="glass rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3 border-2 border-transparent">
+                        <div class="text-xl text-blue-400"><i class="fa-solid fa-credit-card"></i></div>
+                        <div class="text-sm font-bold">Карта / СБП</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="content-tasks" class="tab-content space-y-4">
-            <h2 class="text-xl font-bold mb-4">Бонусы и Дни</h2>
+            <h2 class="text-xl font-bold mb-4 text-center">Бонусы и Дни</h2>
             
             <div class="glass rounded-2xl p-5 relative overflow-hidden">
                 <div class="flex justify-between items-start mb-4">
@@ -78,7 +123,6 @@
                         +3 ДНЯ
                     </div>
                 </div>
-                
                 <div class="space-y-2">
                     <a href="https://t.me/nemo_vpn_official" target="_blank" class="block w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-center text-sm font-bold transition">
                         <i class="fa-brands fa-telegram mr-2"></i> Подписаться на канал
@@ -91,35 +135,38 @@
 
             <div class="glass rounded-2xl p-5">
                 <h3 class="font-bold text-lg mb-1">Приглашай друзей</h3>
-                <p class="text-xs text-gray-400 mb-4">Получай % на баланс и бесплатные дни за активных рефералов.</p>
+                <p class="text-xs text-gray-400 mb-4 font-medium">Бесплатные дни за каждого оплатившего друга.</p>
                 
                 <div class="space-y-4 mb-6">
                     <div class="flex items-center text-sm">
-                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-user"></i></div>
+                        <div id="ref-icon-1" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mr-3 transition-colors"><i class="fa-solid fa-check"></i></div>
                         <div class="flex-1 text-gray-300">1 друг оплатил</div>
                         <div class="font-bold text-blue-400">+5 дней</div>
                     </div>
                     <div class="flex items-center text-sm">
-                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-users"></i></div>
+                        <div id="ref-icon-5" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mr-3 transition-colors"><i class="fa-solid fa-check-double"></i></div>
                         <div class="flex-1 text-gray-300">5 друзей оплатили</div>
                         <div class="font-bold text-blue-400">+14 дней</div>
                     </div>
                     <div class="flex items-center text-sm">
-                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 mr-3"><i class="fa-solid fa-users-rays"></i></div>
+                        <div id="ref-icon-10" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mr-3 transition-colors"><i class="fa-solid fa-crown"></i></div>
                         <div class="flex-1 text-gray-300">10 друзей оплатили</div>
                         <div class="font-bold text-blue-400">+30 дней</div>
                     </div>
                 </div>
                 
-                <button onclick="shareReferral()" class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl text-sm font-bold transition text-white">
-                    Пригласить друга
-                </button>
+                <div class="space-y-3">
+                    <div class="text-xs text-gray-400 font-bold uppercase tracking-widest pl-1">Твоя ссылка для приглашения:</div>
+                    <div class="flex items-center space-x-2">
+                        <input id="ref-url" type="text" readonly class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none" value="Загрузка...">
+                        <button onclick="copyRefLink()" class="bg-blue-500 p-3 rounded-xl hover:bg-blue-600 transition"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="content-help" class="tab-content space-y-4">
-            <h2 class="text-xl font-bold mb-4">Инструкции</h2>
-            
+            <h2 class="text-xl font-bold mb-4 text-center">Инструкции</h2>
             <a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690" target="_blank" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
                 <div class="text-2xl text-white w-10 text-center"><i class="fa-brands fa-apple"></i></div>
                 <div class="ml-3 flex-1">
@@ -128,7 +175,6 @@
                 </div>
                 <i class="fa-solid fa-arrow-up-right-from-square text-gray-500 text-sm"></i>
             </a>
-
             <a href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
                 <div class="text-2xl text-green-400 w-10 text-center"><i class="fa-brands fa-android"></i></div>
                 <div class="ml-3 flex-1">
@@ -137,16 +183,6 @@
                 </div>
                 <i class="fa-solid fa-arrow-up-right-from-square text-gray-500 text-sm"></i>
             </a>
-
-            <a href="https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe" target="_blank" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
-                <div class="text-2xl text-blue-400 w-10 text-center"><i class="fa-brands fa-windows"></i></div>
-                <div class="ml-3 flex-1">
-                    <div class="font-bold">Windows</div>
-                    <div class="text-xs text-gray-400">Скачать Happ Desktop</div>
-                </div>
-                <i class="fa-solid fa-arrow-up-right-from-square text-gray-500 text-sm"></i>
-            </a>
-
             <div class="mt-8">
                 <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold mb-3 pl-1">Остались вопросы?</h2>
                 <a href="https://t.me/nedopekin" target="_blank" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10 border-blue-500/30">
