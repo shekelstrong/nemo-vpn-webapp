@@ -135,7 +135,7 @@ async function createInvoice() {
             tier: "premium",
             device_count: state.devices,
             amount: state.totalPrice,
-            payment_method: "cryptopay" // По умолчанию крипта (можно расширить)
+            payment_method: "cryptopay"
         });
         
         if (data.status === "success") {
@@ -173,7 +173,8 @@ async function checkSubscription() {
         
         if (data.status === "success") {
             btn.innerText = "Выполнено (+3 дня)";
-            btn.classList.add("bg-green-500/20", "text-green-400");
+            btn.classList.remove("bg-white/5", "text-gray-400");
+            btn.classList.add("bg-green-500/20", "text-green-400", "border-green-500/50");
             tg.showAlert("Успешно! Вам начислено 3 бонусных дня.");
         } else if (data.status === "already_done") {
             btn.innerText = "Уже выполнено";
@@ -182,13 +183,24 @@ async function checkSubscription() {
             // Если не подписан
             btn.innerText = "Проверить подписку";
             btn.disabled = false;
-            tg.showAlert("Вы не подписаны на канал. Подпишитесь и попробуйте снова.");
+            tg.showAlert("Вы еще не подписаны на канал @nemo_vpn_official. Подпишитесь и попробуйте снова.");
         }
     } catch (err) {
         btn.innerText = "Проверить подписку";
         btn.disabled = false;
         tg.showAlert(err.message);
     }
+}
+
+/**
+ * Логика кнопки "Пригласить друга"
+ */
+function shareReferral() {
+    // Используем deep-link, чтобы перенаправить пользователя в бота 
+    // и вызвать команду выдачи реферальной ссылки
+    const botUsername = "nemo_vpn_bot";
+    tg.openTelegramLink(`https://t.me/${botUsername}?start=referral`);
+    tg.close();
 }
 
 // Запускаем приложение при загрузке DOM
