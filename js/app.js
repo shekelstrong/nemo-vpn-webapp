@@ -29,10 +29,9 @@ async function init() {
     const tg_id = tg.initDataUnsafe?.user?.id;
     
     if (!tg_id) {
-        // Для тестов в браузере
+        // Для тестов в браузере (удали в продакшене или оставь для отладки)
         console.warn("Запущено вне Telegram");
-        const nameEl = document.getElementById('user-name');
-        if (nameEl) nameEl.innerText = "Developer Mode";
+        document.getElementById('user-name').innerText = "Developer Mode";
         return;
     }
 
@@ -66,56 +65,39 @@ function updateProfileUI() {
     if (!u) return;
 
     // Имя и Аватар
-    const nameEl = document.getElementById('user-name');
-    if (nameEl) nameEl.innerText = u.username;
-    
+    document.getElementById('user-name').innerText = u.username;
     if (tg.initDataUnsafe?.user?.photo_url) {
-        const avatarEl = document.getElementById('user-avatar');
-        if (avatarEl) avatarEl.src = tg.initDataUnsafe.user.photo_url;
+        document.getElementById('user-avatar').src = tg.initDataUnsafe.user.photo_url;
     }
 
     // Дни и Устройства
-    const daysEl = document.getElementById('days-left');
-    if (daysEl) daysEl.innerText = u.days_left;
-    
-    const devEl = document.getElementById('profile-devices');
-    if (devEl) devEl.innerText = u.device_count;
+    document.getElementById('days-left').innerText = u.days_left;
+    document.getElementById('profile-devices').innerText = u.device_count;
     
     const statusText = document.getElementById('status-text');
-    if (statusText) {
-        if (u.days_left > 0) {
-            statusText.innerText = "Активен";
-            statusText.classList.remove('text-red-400');
-            statusText.classList.add('text-blue-400');
-        } else {
-            statusText.innerText = "Истек";
-            statusText.classList.remove('text-blue-400');
-            statusText.classList.add('text-red-400');
-        }
+    if (u.days_left > 0) {
+        statusText.innerText = "Активен";
+        statusText.classList.replace('text-red-400', 'text-blue-400');
+    } else {
+        statusText.innerText = "Истек";
+        statusText.classList.replace('text-blue-400', 'text-red-400');
     }
 
     // Трафик
     const used = u.used_traffic || 0;
     const limit = u.gb_limit || 0;
-    const usedEl = document.getElementById('used-gb');
-    if (usedEl) usedEl.innerText = used;
+    document.getElementById('used-gb').innerText = used;
+    document.getElementById('total-gb').innerText = limit > 0 ? limit : "∞";
     
-    const totalEl = document.getElementById('total-gb');
-    if (totalEl) totalEl.innerText = limit > 0 ? limit : "∞";
-    
-    const barEl = document.getElementById('traffic-bar');
-    if (barEl) {
-        if (limit > 0) {
-            const percent = Math.min((used / limit) * 100, 100);
-            barEl.style.width = `${percent}%`;
-        } else {
-            barEl.style.width = `0%`;
-        }
+    if (limit > 0) {
+        const percent = Math.min((used / limit) * 100, 100);
+        document.getElementById('traffic-bar').style.width = `${percent}%`;
+    } else {
+        document.getElementById('traffic-bar').style.width = `0%`;
     }
 
     // Реферальная ссылка
-    const refUrlEl = document.getElementById('ref-url');
-    if (refUrlEl) refUrlEl.value = u.ref_link;
+    document.getElementById('ref-url').value = u.ref_link;
 
     // Достижения рефералов (Галочки)
     updateRefIcons(u.refs_paid_count);
@@ -254,11 +236,9 @@ function updateRefIcons(count) {
     const targets = [1, 5, 10];
     targets.forEach(t => {
         const icon = document.getElementById(`ref-icon-${t}`);
-        if (icon) {
-            if (count >= t) {
-                icon.classList.remove('bg-white/5', 'text-gray-500');
-                icon.classList.add('bg-green-500/20', 'text-green-400');
-            }
+        if (count >= t) {
+            icon.classList.remove('bg-white/5', 'text-gray-500');
+            icon.classList.add('bg-green-500/20', 'text-green-400');
         }
     });
 }
@@ -273,14 +253,9 @@ function switchTab(tabName) {
         el.classList.add('text-gray-400');
     });
 
-    const contentEl = document.getElementById(`content-${tabName}`);
-    if (contentEl) contentEl.classList.add('active');
-    
-    const tabEl = document.getElementById(`tab-${tabName}`);
-    if (tabEl) {
-        tabEl.classList.remove('text-gray-400');
-        tabEl.classList.add('text-blue-400');
-    }
+    document.getElementById(`content-${tabName}`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.remove('text-gray-400');
+    document.getElementById(`tab-${tabName}`).classList.add('text-blue-400');
 
     if (tabName === 'tariff') {
         tg.MainButton.show();
@@ -293,56 +268,56 @@ function switchTab(tabName) {
  * Выбор тарифа и устройств
  */
 function selectDuration(m) {
-    state.months = parseInt(m);
+    // Защита от багов WebView (если m передается как объект Event)
+    let parsedMonths = typeof m === 'object' ? parseInt(m.currentTarget?.id.replace('dur-', '') || 1, 10) : parseInt(m, 10);
+    if (isNaN(parsedMonths)) return;
+
+    state.months = parsedMonths;
     [1, 3, 6, 12].forEach(val => {
-        const durEl = document.getElementById(`dur-${val}`);
-        if (durEl) {
-            durEl.classList.toggle('glass-active', val === state.months);
-        }
+        document.getElementById(`dur-${val}`).classList.toggle('glass-active', val === state.months);
     });
     updatePrice();
 }
 
 function changeDevices(delta) {
-    const n = state.devices + delta;
+    let current = parseInt(state.devices, 10) || 1;
+    let diff = parseInt(delta, 10) || 0;
+    const n = current + diff;
+
     if (n >= 1 && n <= 10) {
         state.devices = n;
-        const countEl = document.getElementById('device-count');
-        if (countEl) countEl.innerText = n;
+        document.getElementById('device-count').innerText = n;
         updatePrice();
     }
 }
 
 function selectPayment(method) {
     state.paymentMethod = method;
-    const cryptoEl = document.getElementById('pay-cryptopay');
-    if (cryptoEl) cryptoEl.classList.toggle('glass-active', method === 'cryptopay');
-    
-    const plategaEl = document.getElementById('pay-platega');
-    if (plategaEl) plategaEl.classList.toggle('glass-active', method === 'platega');
+    document.getElementById('pay-cryptopay').classList.toggle('glass-active', method === 'cryptopay');
+    document.getElementById('pay-platega').classList.toggle('glass-active', method === 'platega');
 }
 
-/**
- * Обновление цены с учетом математической модели скидок
- */
 function updatePrice() {
-    // Базовая цена за месяц с учетом количества устройств
-    const baseMonthPrice = BASE_PRICE + ((state.devices - 1) * DEVICE_EXTRA_PRICE);
-    
-    // Определяем скидку в зависимости от длительности
+    const devices = parseInt(state.devices, 10) || 1;
+    const months = parseInt(state.months, 10) || 1;
+
+    const baseMonthPrice = BASE_PRICE + ((devices - 1) * DEVICE_EXTRA_PRICE);
     let discountMultiplier = 1.0; 
     
-    if (state.months === 3) {
-        discountMultiplier = 0.90; // 10%
-    } else if (state.months === 6) {
-        discountMultiplier = 0.83; // 17%
-    } else if (state.months === 12) {
-        discountMultiplier = 0.75; // 25%
+    if (months === 3) {
+        discountMultiplier = 0.90; // Скидка 10%
+    } else if (months === 6) {
+        discountMultiplier = 0.83; // Скидка 17%
+    } else if (months === 12) {
+        discountMultiplier = 0.75; // Скидка 25%
     }
 
-    // Считаем итоговую цену
-    state.totalPrice = Math.round((baseMonthPrice * state.months) * discountMultiplier);
+    let total = Math.round((baseMonthPrice * months) * discountMultiplier);
     
+    // Защита от NaN
+    if (isNaN(total)) total = BASE_PRICE;
+
+    state.totalPrice = total;
     tg.MainButton.setText(`ОФОРМИТЬ ЗА ${state.totalPrice} ₽`);
 }
 
@@ -365,6 +340,7 @@ async function createInvoice() {
         });
         
         if (data.status === "success" && data.pay_url) {
+            // Открываем платежную ссылку во внешнем браузере или внутри ТГ
             tg.openLink(data.pay_url);
         } else {
             tg.showAlert("Ошибка: " + (data.error || "Не удалось получить ссылку"));
@@ -383,35 +359,27 @@ async function checkSubscription() {
     const btn = document.getElementById('btn-check-sub');
     const tg_id = tg.initDataUnsafe?.user?.id;
     
-    if (btn) {
-        btn.innerText = "Проверяем...";
-        btn.disabled = true;
-    }
+    btn.innerText = "Проверяем...";
+    btn.disabled = true;
 
     try {
         const data = await apiCheckTask(tg_id);
         if (data.status === "success") {
-            if (btn) {
-                btn.innerText = "Выполнено (+3 дня)";
-                btn.classList.add("bg-green-500/20", "text-green-400");
-            }
-            tg.showAlert("🎉 3 бонусных дня начислены!");
-            init();
+            btn.innerText = "Выполнено (+3 дня)";
+            btn.classList.add("bg-green-500/20", "text-green-400");
+            tg.showAlert("3 бонусных дня начислены!");
+            init(); // Обновляем данные профиля
         } else if (data.status === "already_done") {
             tg.showAlert("Вы уже получали этот бонус.");
-            if (btn) btn.innerText = "Уже получено";
+            btn.innerText = "Уже получено";
         } else {
             tg.showAlert("Вы еще не подписаны на канал.");
-            if (btn) {
-                btn.innerText = "Проверить подписку";
-                btn.disabled = false;
-            }
-        }
-    } catch (err) {
-        if (btn) {
             btn.innerText = "Проверить подписку";
             btn.disabled = false;
         }
+    } catch (err) {
+        btn.innerText = "Проверить подписку";
+        btn.disabled = false;
     }
 }
 
@@ -420,16 +388,11 @@ async function checkSubscription() {
  */
 function copyRefLink() {
     const input = document.getElementById('ref-url');
-    if (!input) return;
-    
     input.select();
     input.setSelectionRange(0, 99999);
     
     navigator.clipboard.writeText(input.value).then(() => {
-        tg.showAlert("🔗 Ссылка скопирована! Отправь её друзьям.");
-    }).catch(err => {
-        document.execCommand("copy");
-        tg.showAlert("🔗 Ссылка скопирована! Отправь её друзьям.");
+        tg.showAlert("Ссылка скопирована! Отправь её друзьям.");
     });
 }
 
