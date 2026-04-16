@@ -18,6 +18,10 @@ let state = {
 const BASE_PRICE = 300;
 const DEVICE_EXTRA_PRICE = 100;
 
+// Статические ключи маршрутизации (для VIP)
+const ROUTE_V2BOX = "v2box://routes?multi=W3sibGlzdCI6WyJnZW9zaXRlOnJ1IiwiZG9tYWluOnJ1IiwiZG9tYWluOtGA0YQiXSwiaXNFbmFibGUiOnRydWUsIm1hdGNoTW9kZSI6ImRvbWFpbiIsIm5hbWUiOiJyb3V0ZS4zRjFENTdBOS0xRkZELTQ5MkMtOTY2NS1BRTJDNDU4QzE0QUIiLCJyZW1hcmsiOiJEaXJlY3QgUlUiLCJsaXN0SVAiOlsiZ2VvaXA6cnUiLCJnZW9pcDpwcml2YXRlIl0sInR5cGUiOiJJUCIsInRhZyI6ImRpcmVjdCJ9XQ==";
+const ROUTE_HAPP = "happ://routing/add/eyJEbnNIb3N0cyI6e30sIkRvbWFpblN0cmF0ZWd5IjoiSVBJZk5vbk1hdGNoIiwiQmxvY2tTaXRlcyI6W10sIkxhc3RVcGRhdGVkIjoxNzc1OTYwOTM0LCJEb21lc3RpY0ROU0RvbWFpbiI6Imh0dHBzOlwvXC9kbnMuZ29vZ2xlXC9kbnMtcXVlcnkiLCJEb21lc3RpY0ROU1R5cGUiOiJEb1UiLCJVc2VDaHVua0ZpbGVzIjp0cnVlLCJSb3V0ZU9yZGVyIjoiYmxvY2stZGlyZWN0LXByb3h5IiwiUmVtb3RlRE5TVHlwZSI6IkRvVSIsIk5hbWUiOiLQoNCkIiwiR2xvYmFsUHJveHkiOnRydWUsIlJlbW90ZUROU0lwIjoiMS4xLjEuMSIsIkdlb2lwVXJsIjoiaHR0cHM6XC9cL2dpdGh1Yi5jb21cL0xveWFsc29sZGllclwvdjJyYXktcnVsZXMtZGF0XC9yZWxlYXNlc1wvbGF0ZXN0XC9kb3dubG9hZFwvZ2VvaXAuZGF0IiwiRmFrZURucyI6ZmFsc2UsIkRpcmVjdFNpdGVzIjpbImdlb3NpdGU6Y2F0ZWdvcnktcnUiXSwiQmxvY2tJcCI6W10sIkRpcmVjdElwIjpbIjEwLjAuMC4wXC84IiwiMTcyLjE2LjAuMFwvMTIiLCIxOTIuMTY4LjAuMFwvMTYiLCIxNjkuMjU0LjAuMFwvMTYiLCIyMjQuMC4wLjBcLzQiLCIyNTUuMjU1LjI1NS4yNTUiLCJnZW9pcDpydSJdLCJEb21lc3RpY0ROU0lwIjoiOC44LjguOCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOlwvXC9jbG91ZGZsYXJlLWRucy5jb21cL2Rucy1xdWVyeSIsIlByb3h5SXAiOltdLCJQcm94eVNpdGVzIjpbXSwiR2Vvc2l0ZVVybCI6Imh0dHBzOlwvXC9naXRodWIuY29tXC9Mb3lhbHNvbGRpZXJcL3YycmF5LXJ1bGVzLWRhdFwvcmVsZWFzZXNcL2xhdGVzdFwvZG93bmxvYWRcL2dlb3NpdGUuZGF0In0=";
+
 /**
  * Инициализация: Загрузка данных пользователя
  */
@@ -25,7 +29,7 @@ async function init() {
     const tg_id = tg.initDataUnsafe?.user?.id;
     
     if (!tg_id) {
-        // Для тестов в браузере (удали в продакшене или оставь для отладки)
+        // Для тестов в браузере
         console.warn("Запущено вне Telegram");
         const nameEl = document.getElementById('user-name');
         if (nameEl) nameEl.innerText = "Developer Mode";
@@ -116,7 +120,7 @@ function updateProfileUI() {
     // Достижения рефералов (Галочки)
     updateRefIcons(u.refs_paid_count);
 
-    // === ВЫВОД КЛЮЧЕЙ VPN (НОВЫЙ ФУНКЦИОНАЛ) ===
+    // === ВЫВОД КЛЮЧЕЙ VPN И МАРШРУТИЗАЦИИ ===
     if (u.sub_url || u.vless_link) {
         let keysContainer = document.getElementById('vpn-keys-container');
         
@@ -126,7 +130,6 @@ function updateProfileUI() {
             keysContainer.id = 'vpn-keys-container';
             keysContainer.className = 'mt-6 mb-6';
             
-            // Пытаемся найти куда вставить (перед блоком рефералки)
             const profileTab = document.getElementById('content-profile');
             if (profileTab) {
                 const mt8Elements = profileTab.querySelectorAll('.mt-8');
@@ -138,8 +141,8 @@ function updateProfileUI() {
             }
         }
 
-        // Заполняем контейнер ключами
-        keysContainer.innerHTML = `
+        // Заполняем контейнер ключами (Подписка + VLESS)
+        let keysHTML = `
             <h2 class="text-sm uppercase tracking-wider text-gray-400 mb-3 pl-1">Ваши ключи доступа</h2>
             
             ${u.sub_url ? `
@@ -149,7 +152,7 @@ function updateProfileUI() {
                     <i class="fa-solid fa-copy text-gray-500"></i>
                 </div>
                 <div class="text-[10px] text-gray-400 mb-2 leading-tight">
-                    Нажмите на саму строку ключа, чтобы показать его. Нажмите на всю карточку, чтобы скопировать.
+                    Нажмите на строку ключа, чтобы показать его. Нажмите на карточку, чтобы скопировать.
                 </div>
                 <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">
                     ${u.sub_url}
@@ -157,7 +160,7 @@ function updateProfileUI() {
             </div>` : ''}
 
             ${u.vless_link ? `
-            <div class="glass rounded-2xl p-4 cursor-pointer transition hover:bg-white/10" onclick="copyVpnKey('vless_link')">
+            <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10" onclick="copyVpnKey('vless_link')">
                 <div class="flex justify-between items-center mb-2">
                     <div class="font-bold text-sm">🔗 VLESS Ключ (Прямой)</div>
                     <i class="fa-solid fa-copy text-gray-500"></i>
@@ -167,6 +170,35 @@ function updateProfileUI() {
                 </div>
             </div>` : ''}
         `;
+
+        // Если у пользователя VIP (premium) - добавляем ключи маршрутизации
+        if (u.tier === 'premium') {
+            keysHTML += `
+            <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">🚀 VIP: Обход белых списков</h2>
+            
+            <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10 border-purple-500/30" onclick="copyVpnKey('route_v2box')">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="font-bold text-sm text-purple-300">Маршрутизация V2Box</div>
+                    <i class="fa-solid fa-copy text-gray-500"></i>
+                </div>
+                <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">
+                    ${ROUTE_V2BOX}
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-4 cursor-pointer transition hover:bg-white/10 border-green-500/30" onclick="copyVpnKey('route_happ')">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="font-bold text-sm text-green-300">Маршрутизация Happ</div>
+                    <i class="fa-solid fa-copy text-gray-500"></i>
+                </div>
+                <div class="bg-black/20 rounded p-2 text-xs text-green-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">
+                    ${ROUTE_HAPP}
+                </div>
+            </div>
+            `;
+        }
+
+        keysContainer.innerHTML = keysHTML;
     }
 }
 
@@ -192,7 +224,11 @@ function copyVpnKey(keyType) {
     const u = state.user;
     if (!u) return;
     
-    const textToCopy = keyType === 'sub_url' ? u.sub_url : u.vless_link;
+    let textToCopy = "";
+    if (keyType === 'sub_url') textToCopy = u.sub_url;
+    else if (keyType === 'vless_link') textToCopy = u.vless_link;
+    else if (keyType === 'route_v2box') textToCopy = ROUTE_V2BOX;
+    else if (keyType === 'route_happ') textToCopy = ROUTE_HAPP;
     
     if (textToCopy) {
         navigator.clipboard.writeText(textToCopy).then(() => {
@@ -290,21 +326,21 @@ function selectPayment(method) {
  * Обновление цены с учетом математической модели скидок
  */
 function updatePrice() {
-    // 1. Базовая цена за месяц с учетом количества устройств
+    // Базовая цена за месяц с учетом количества устройств
     const baseMonthPrice = BASE_PRICE + ((state.devices - 1) * DEVICE_EXTRA_PRICE);
     
-    // 2. Определяем скидку в зависимости от длительности
+    // Определяем скидку в зависимости от длительности
     let discountMultiplier = 1.0; 
     
     if (state.months === 3) {
-        discountMultiplier = 0.90; // Скидка 10%
+        discountMultiplier = 0.90; // 10%
     } else if (state.months === 6) {
-        discountMultiplier = 0.83; // Скидка 17%
+        discountMultiplier = 0.83; // 17%
     } else if (state.months === 12) {
-        discountMultiplier = 0.75; // Скидка 25%
+        discountMultiplier = 0.75; // 25%
     }
 
-    // 3. Считаем итоговую цену: (Цена за 1 мес * Кол-во месяцев) * Скидку
+    // Считаем итоговую цену
     state.totalPrice = Math.round((baseMonthPrice * state.months) * discountMultiplier);
     
     tg.MainButton.setText(`ОФОРМИТЬ ЗА ${state.totalPrice} ₽`);
@@ -329,7 +365,6 @@ async function createInvoice() {
         });
         
         if (data.status === "success" && data.pay_url) {
-            // Открываем платежную ссылку
             tg.openLink(data.pay_url);
         } else {
             tg.showAlert("Ошибка: " + (data.error || "Не удалось получить ссылку"));
@@ -361,7 +396,7 @@ async function checkSubscription() {
                 btn.classList.add("bg-green-500/20", "text-green-400");
             }
             tg.showAlert("🎉 3 бонусных дня начислены!");
-            init(); // Обновляем данные профиля
+            init();
         } else if (data.status === "already_done") {
             tg.showAlert("Вы уже получали этот бонус.");
             if (btn) btn.innerText = "Уже получено";
