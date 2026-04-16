@@ -340,8 +340,12 @@ async function createInvoice() {
         });
         
         if (data.status === "success" && data.pay_url) {
-            // Открываем платежную ссылку во внешнем браузере или внутри ТГ
-            tg.openLink(data.pay_url);
+            // === ИСПРАВЛЕНИЕ: Используем правильный метод для Telegram ссылок ===
+            if (data.pay_url.includes('t.me/')) {
+                tg.openTelegramLink(data.pay_url);
+            } else {
+                tg.openLink(data.pay_url);
+            }
         } else {
             tg.showAlert("Ошибка: " + (data.error || "Не удалось получить ссылку"));
         }
