@@ -17,6 +17,8 @@ let state = {
 
 const BASE_PRICE = 300;
 const DEVICE_EXTRA_PRICE = 100;
+// Прогрессивные лимиты трафика по длительности подписки
+const GB_LIMITS = { 1: 100, 3: 350, 6: 800, 12: 2048 };
 
 // Статические ключи маршрутизации (для VIP)
 const ROUTE_V2BOX = "v2box://routes?multi=W3sibGlzdCI6WyJnZW9zaXRlOnJ1IiwiZG9tYWluOnJ1IiwiZG9tYWluOtGA0YQiXSwiaXNFbmFibGUiOnRydWUsIm1hdGNoTW9kZSI6ImRvbWFpbiIsIm5hbWUiOiJyb3V0ZS4zRjFENTdBOS0xRkZELTQ5MkMtOTY2NS1BRTJDNDU4QzE0QUIiLCJyZW1hcmsiOiJEaXJlY3QgUlUiLCJsaXN0SVAiOlsiZ2VvaXA6cnUiLCJnZW9pcDpwcml2YXRlIl0sInR5cGUiOiJJUCIsInRhZyI6ImRpcmVjdCJ9XQ==";
@@ -318,6 +320,7 @@ function updatePrice() {
     if (isNaN(total)) total = BASE_PRICE;
 
     state.totalPrice = total;
+    state.gbLimit = GB_LIMITS[months] || (months * 100); // Прогрессивный лимит из таблицы
     tg.MainButton.setText(`ОФОРМИТЬ ЗА ${state.totalPrice} ₽`);
 }
 
@@ -336,7 +339,8 @@ async function createInvoice() {
             days: state.months * 30,
             amount: state.totalPrice,
             payment_method: state.paymentMethod,
-            device_count: state.devices
+            device_count: state.devices,
+            gb_limit: state.gbLimit || 100
         });
         
         if (data.status === "success" && data.pay_url) {
@@ -410,3 +414,4 @@ function setupMainButton() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
