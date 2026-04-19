@@ -1,6 +1,6 @@
 /* =========================================================
-   Nemo VPN VIP - API Service
-   Отвечает за связь Mini App с Python-бэкендом
+   Nemo VPN - API Service
+   Mini App ↔ Python backend
 ========================================================= */
 
 const BACKEND_URL = "https://nemovpn.cfd"; 
@@ -11,7 +11,7 @@ async function apiGetUser(tg_id) {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) throw new Error("Пользователь не найден или ошибка сервера.");
+        if (!response.ok) throw new Error("Пользователь не найден");
         return await response.json();
     } catch (error) {
         console.error("API Error (getUser):", error);
@@ -27,7 +27,7 @@ async function apiCreateInvoice(payload) {
             body: JSON.stringify(payload)
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Ошибка при создании счета.");
+        if (!response.ok) throw new Error(data.error || "Ошибка создания счёта");
         return data;
     } catch (error) {
         console.error("API Error (createInvoice):", error);
@@ -40,10 +40,10 @@ async function apiCheckTask(tg_id) {
         const response = await fetch(`${BACKEND_URL}/api/check_task`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tg_id: tg_id })
+            body: JSON.stringify({ tg_id })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Ошибка связи с ботом.");
+        if (!response.ok) throw new Error(data.error || "Ошибка");
         return data;
     } catch (error) {
         console.error("API Error (checkTask):", error);
@@ -51,13 +51,6 @@ async function apiCheckTask(tg_id) {
     }
 }
 
-/**
- * Докупка трафика — создать инвойс
- * @param {number} tg_id
- * @param {number} gb - сколько ГБ докупить
- * @param {number} price - цена в рублях
- * @param {string} payment_method - 'cryptopay' или 'platega'
- */
 async function apiBuyTraffic(tg_id, gb, price, payment_method) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/buy_traffic`, {
@@ -66,7 +59,7 @@ async function apiBuyTraffic(tg_id, gb, price, payment_method) {
             body: JSON.stringify({ tg_id, gb, price, payment_method })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Ошибка при покупке трафика.");
+        if (!response.ok) throw new Error(data.error || "Ошибка покупки трафика");
         return data;
     } catch (error) {
         console.error("API Error (buyTraffic):", error);
@@ -74,22 +67,32 @@ async function apiBuyTraffic(tg_id, gb, price, payment_method) {
     }
 }
 
-/**
- * Создать подарочную подписку
- * @param {number} tg_id - кто дарит
- * @param {string} tier - 'standard' или 'premium'
- * @param {number} days - кол-во дней
- * @param {string} payment_method
- */
-async function apiCreateGift(tg_id, tier, days, payment_method) {
+async function apiBuyTrafficReferral(tg_id, gb, price) {
     try {
+        const response = await fetch(`${BACKEND_URL}/api/buy_traffic_referral`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tg_id, gb, price })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Ошибка");
+        return data;
+    } catch (error) {
+        console.error("API Error (buyTrafficReferral):", error);
+        throw error;
+    }
+}
+
+async function apiCreateGift(tg_id, tier, months, price, payment_method) {
+    try {
+        const days = months * 30;
         const response = await fetch(`${BACKEND_URL}/api/create_gift`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tg_id, tier, days, payment_method })
+            body: JSON.stringify({ tg_id, tier, days, price, payment_method })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Ошибка при создании подарка.");
+        if (!response.ok) throw new Error(data.error || "Ошибка создания подарка");
         return data;
     } catch (error) {
         console.error("API Error (createGift):", error);
@@ -97,21 +100,15 @@ async function apiCreateGift(tg_id, tier, days, payment_method) {
     }
 }
 
-/**
- * Оплатить подписку из реферального баланса
- * @param {number} tg_id
- * @param {number} days
- * @param {string} tier
- */
-async function apiPayFromReferral(tg_id, days, tier) {
+async function apiPayFromReferral(tg_id, days, tier, amount) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/pay_referral`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tg_id, days, tier })
+            body: JSON.stringify({ tg_id, days, tier, amount })
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Недостаточно средств на балансе.");
+        if (!response.ok) throw new Error(data.error || "Недостаточно средств");
         return data;
     } catch (error) {
         console.error("API Error (payFromReferral):", error);
