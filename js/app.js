@@ -492,7 +492,14 @@ function updateGiftPrice() {
     const priceEl = document.getElementById('gift-total-price');
     if (priceEl) priceEl.innerText = price;
     const gbEl = document.getElementById('gift-total-gb');
-    if (gbEl) gbEl.innerText = GB_LIMITS_GIFT[state.giftMonths] || 100;
+    if (gbEl) {
+        if (state.giftTier === 'standard') {
+            gbEl.innerText = '∞';
+            gbEl.parentElement.innerHTML = '<div class="text-sm text-green-400 mt-1">♾️ Безлимитный трафик</div>';
+        } else {
+            gbEl.parentElement.innerHTML = '<div class="text-sm text-blue-400 mt-1">+ <span id="gift-total-gb">' + (GB_LIMITS_GIFT[state.giftMonths] || 100) + '</span> ГБ</div>';
+        }
+    }
     return price;
 }
 
