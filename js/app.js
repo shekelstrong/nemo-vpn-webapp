@@ -22,8 +22,8 @@ let state = {
 const BASE_PRICE = 300;
 const DEVICE_EXTRA_PRICE = 100;
 const GIFT_PRICES = {
-    standard: { 1: 100, 3: 270, 6: 498, 12: 900 },
-    premium: { 1: 300, 3: 810, 6: 1494, 12: 2700 }
+    standard: { 1: 150, 3: 400, 6: 700, 12: 1200 },
+    premium: { 1: 400, 3: 1050, 6: 1900, 12: 3500 }
 };
 const GB_LIMITS_GIFT = { 1: 100, 3: 350, 6: 800, 12: 2048 };
 
@@ -367,8 +367,16 @@ function changeDevices(delta) {
 
 function selectPayment(method) {
     state.paymentMethod = method;
-    document.getElementById('pay-cryptopay').classList.toggle('glass-active', method === 'cryptopay');
-    document.getElementById('pay-platega').classList.toggle('glass-active', method === 'platega');
+    // Subscription tab
+    const payCrypto = document.getElementById('pay-cryptopay');
+    const payPlatega = document.getElementById('pay-platega');
+    if (payCrypto) payCrypto.classList.toggle('glass-active', method === 'cryptopay');
+    if (payPlatega) payPlatega.classList.toggle('glass-active', method === 'platega');
+    // Gift tab
+    const giftCrypto = document.getElementById('gift-pay-crypto');
+    const giftCard = document.getElementById('gift-pay-card');
+    if (giftCrypto) giftCrypto.classList.toggle('glass-active', method === 'cryptopay');
+    if (giftCard) giftCard.classList.toggle('glass-active', method === 'platega');
 }
 
 function updatePrice() {
