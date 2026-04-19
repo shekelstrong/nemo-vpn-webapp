@@ -45,6 +45,7 @@ async function init() {
         const data = await apiGetUser(tg_id);
         if (data.user) {
             state.user = data.user;
+            switchTab('profile');
             updateProfileUI();
             updateDurationUI();
             updatePrice();
