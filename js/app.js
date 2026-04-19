@@ -304,14 +304,22 @@ async function payFromReferralBalance() {
     if (!tg_id) return;
     
     const days = state.months * 30;
-    const tier = 'premium'; // по умолчанию VIP
+    const tier = 'premium';
+    const price = updatePrice();
+    const balance = state.user?.referral_balance || 0;
+    
+    // Подтверждение
+    const confirmed = await new Promise(resolve => {
+        tg.showConfirm(`Списать ${price}₽ с реферального баланса (${balance.toFixed(0)}₽)?`, resolve);
+    });
+    if (!confirmed) return;
     
     tg.MainButton.showProgress();
     try {
         const data = await apiPayFromReferral(tg_id, days, tier);
         if (data.status === "success") {
             tg.showAlert("✅ Подписка оформлена из реферального баланса!");
-            init(); // обновляем профиль
+            init();
         } else {
             tg.showAlert("Ошибка: " + (data.error || "Недостаточно средств"));
         }
