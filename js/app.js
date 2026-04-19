@@ -563,7 +563,29 @@ async function giftFromReferral() {
 
 // ==================== TASKS ====================
 async function checkSubscription() {
-    tg.showAlert("Функция проверки подписки будет доступна скоро!");
+    const tg_id = tg.initDataUnsafe?.user?.id;
+    if (!tg_id) return;
+    
+    const btn = document.getElementById('btn-check-sub');
+    if (btn) btn.innerText = 'Проверяем...';
+    
+    try {
+        const data = await apiCheckTask(tg_id);
+        if (data.status === 'success') {
+            tg.showAlert('🎉 Спасибо за подписку! Вам начислено +3 бонусных дня.');
+            init();
+            if (btn) btn.innerText = '✅ Выполнено';
+        } else if (data.status === 'already_done') {
+            tg.showAlert('Вы уже получили бонус за подписку.');
+            if (btn) btn.innerText = '✅ Выполнено';
+        } else if (data.status === 'not_subscribed') {
+            tg.showAlert('❌ Вы ещё не подписаны на канал. Подпишитесь и попробуйте снова.');
+            if (btn) btn.innerText = 'Проверить подписку';
+        }
+    } catch (err) {
+        tg.showAlert('Ошибка проверки. Попробуйте позже.');
+        if (btn) btn.innerText = 'Проверить подписку';
+    }
 }
 
 function updateRefIcons(count) {
