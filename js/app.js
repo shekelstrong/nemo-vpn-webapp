@@ -523,6 +523,44 @@ async function createGift() {
     }
 }
 
+async function giftFromReferral() {
+    const tg_id = tg.initDataUnsafe?.user?.id;
+    if (!tg_id) return;
+    
+    const price = updateGiftPrice();
+    const balance = state.user?.referral_balance || 0;
+    
+    if (balance < price) {
+        tg.showAlert(`❌ Недостаточно средств на реферальном балансе.\n\nБаланс: ${balance.toFixed(0)}₽\nНужно: ${price}₽`);
+        return;
+    }
+    
+    const confirmed = await new Promise(resolve => {
+        tg.showConfirm(`Списать ${price}₽ с реферального баланса за подарок?`, resolve);
+    });
+    if (!confirmed) return;
+    
+    try {
+        const days = state.giftMonths * 30;
+        // Create gift code directly via referral balance
+        const data = await fetch(`${BACKEND_URL || 'https://nemovpn.cfd'}/api/gift_referral`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tg_id, tier: state.giftTier, days, amount: price })
+        }).then(r => r.json());
+        
+        if (data.status === "success" && data.gift_link) {
+            tg.showAlert(`🎁 Подарок оплачен!\n\nОтправьте ссылку другу:\n${data.gift_link}`);
+            showView('main');
+            init();
+        } else {
+            tg.showAlert("Ошибка: " + (data.error || "Недостаточно средств"));
+        }
+    } catch (err) {
+        tg.showAlert("Ошибка: " + (err.message || "Сервер недоступен"));
+    }
+}
+
 // ==================== TASKS ====================
 async function checkSubscription() {
     tg.showAlert("Функция проверки подписки будет доступна скоро!");
