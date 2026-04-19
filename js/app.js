@@ -164,29 +164,40 @@ function updateTrafficUI() {
     const used = u.used_traffic || 0;
     const trafficSection = document.getElementById('traffic-topup-section');
     
-    if (trafficSection) {
-        if (limit > 0 && used >= limit * 0.9) {
-            trafficSection.style.display = 'block';
-            trafficSection.innerHTML = `
-                <div class="glass rounded-2xl p-5 border-red-500/30">
-                    <div class="flex items-center mb-3">
-                        <div class="text-2xl mr-3">⚠️</div>
-                        <div>
-                            <div class="font-bold text-red-400">Трафик почти исчерпан!</div>
-                            <div class="text-xs text-gray-400">Использовано ${used} из ${limit} ГБ</div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-300 mb-3">Докупите дополнительный трафик:</div>
-                    <div class="grid grid-cols-2 gap-2">
-                        ${TRAFFIC_PACKAGES.map(pkg => `
-                        <button onclick="buyTraffic(${pkg.gb}, ${pkg.price})" class="py-2 px-3 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-xl text-sm font-bold transition">
-                            +${pkg.gb} ГБ — ${pkg.price}₽
-                        </button>`).join('')}
-                    </div>
-                </div>`;
+    if (trafficSection && limit > 0) {
+        const percent = Math.round((used / limit) * 100);
+        const isLow = percent >= 80;
+        const isExhausted = used >= limit;
+        
+        trafficSection.style.display = 'block';
+        
+        let header, headerColor;
+        if (isExhausted) {
+            header = '🔴 Трафик исчерпан!';
+            headerColor = 'text-red-400';
+        } else if (isLow) {
+            header = '⚠️ Трафик заканчивается';
+            headerColor = 'text-yellow-400';
         } else {
-            trafficSection.style.display = 'none';
+            header = '📦 Докупить трафик';
+            headerColor = 'text-blue-400';
         }
+        
+        trafficSection.innerHTML = `
+            <div class="glass rounded-2xl p-4 ${isLow ? 'border-red-500/30' : ''}">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="font-bold ${headerColor}">${header}</div>
+                    <div class="text-xs text-gray-400">${used} / ${limit} ГБ (${percent}%)</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    ${TRAFFIC_PACKAGES.map(pkg => `
+                    <button onclick="buyTraffic(${pkg.gb}, ${pkg.price})" class="py-2 px-3 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-xl text-sm font-bold transition">
+                        +${pkg.gb} ГБ — ${pkg.price}₽
+                    </button>`).join('')}
+                </div>
+            </div>`;
+    } else if (trafficSection) {
+        trafficSection.style.display = 'none';
     }
 }
 
