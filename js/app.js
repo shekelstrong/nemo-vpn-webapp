@@ -21,7 +21,11 @@ let state = {
 
 const BASE_PRICE = 300;
 const DEVICE_EXTRA_PRICE = 100;
-const GB_LIMITS = { 1: 100, 3: 350, 6: 800, 12: 2048 };
+const GIFT_PRICES = {
+    standard: { 1: 100, 3: 270, 6: 498, 12: 900 },
+    premium: { 1: 300, 3: 810, 6: 1494, 12: 2700 }
+};
+const GB_LIMITS_GIFT = { 1: 100, 3: 350, 6: 800, 12: 2048 };
 
 // Пакеты докупки трафика
 const TRAFFIC_PACKAGES = [
@@ -245,14 +249,16 @@ function selectGiftDuration(m) {
 }
 
 function updateGiftPrice() {
-    const base = state.giftTier === 'premium' ? 300 : 100;
-    let price = base * state.giftMonths;
-    if (state.giftMonths === 3) price = Math.round(price * 0.9);
-    else if (state.giftMonths === 6) price = Math.round(price * 0.83);
-    else if (state.giftMonths === 12) price = Math.round(price * 0.75);
+    const prices = GIFT_PRICES[state.giftTier] || GIFT_PRICES.premium;
+    const price = prices[state.giftMonths] || prices[1];
     
     const priceEl = document.getElementById('gift-total-price');
     if (priceEl) priceEl.innerText = price;
+    
+    // Update GB display
+    const gbEl = document.getElementById('gift-total-gb');
+    if (gbEl) gbEl.innerText = GB_LIMITS_GIFT[state.giftMonths] || 100;
+    
     return price;
 }
 
@@ -372,7 +378,7 @@ function updatePrice() {
     if (isNaN(total)) total = BASE_PRICE;
 
     state.totalPrice = total;
-    state.gbLimit = GB_LIMITS[months] || (months * 100);
+    state.gbLimit = GB_LIMITS_GIFT[months] || (months * 100);
     tg.MainButton.setText(`ОФОРМИТЬ ЗА ${state.totalPrice} ₽`);
 }
 

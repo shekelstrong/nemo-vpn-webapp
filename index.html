@@ -156,18 +156,19 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div onclick="selectGiftDuration(1)" id="gift-dur-1" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">1 Месяц</div>
+                        <div class="text-xs text-blue-300">100 ГБ</div>
                     </div>
                     <div onclick="selectGiftDuration(3)" id="gift-dur-3" class="glass rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">3 Месяца</div>
-                        <div class="text-xs text-green-400">-10%</div>
+                        <div class="text-xs text-blue-300">350 ГБ</div>
                     </div>
                     <div onclick="selectGiftDuration(6)" id="gift-dur-6" class="glass rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">6 Месяцев</div>
-                        <div class="text-xs text-green-400">-17%</div>
+                        <div class="text-xs text-blue-300">800 ГБ</div>
                     </div>
                     <div onclick="selectGiftDuration(12)" id="gift-dur-12" class="glass rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">1 Год</div>
-                        <div class="text-xs text-green-400">-25%</div>
+                        <div class="text-xs text-blue-300">2 ТБ</div>
                     </div>
                 </div>
             </div>
@@ -175,7 +176,7 @@
             <div class="space-y-3">
                 <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">3. Оплата</h2>
                 <div class="grid grid-cols-2 gap-3">
-                    <div onclick="selectPayment('cryptopay')" id="gift-pay-crypto" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3" onclick="state.paymentMethod='cryptopay'">
+                    <div onclick="selectPayment('cryptopay')" id="gift-pay-crypto" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3">
                         <div class="text-xl text-yellow-500"><i class="fa-brands fa-bitcoin"></i></div>
                         <div class="text-sm font-bold">Крипто</div>
                     </div>
@@ -189,6 +190,7 @@
             <div class="glass rounded-2xl p-5 text-center">
                 <div class="text-gray-400 text-sm mb-2">Итого:</div>
                 <div class="text-3xl font-black"><span id="gift-total-price">300</span> ₽</div>
+                <div class="text-sm text-blue-400 mt-1">+ <span id="gift-total-gb">100</span> ГБ трафика</div>
                 <div class="text-xs text-gray-500 mt-2">После оплаты вы получите ссылку для друга</div>
             </div>
 
