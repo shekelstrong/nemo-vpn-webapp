@@ -14,12 +14,14 @@
     <div class="fixed top-0 left-0 right-0 z-50 glass rounded-b-2xl px-4 py-3 flex justify-between items-center mb-6">
         <button onclick="switchTab('profile')" id="tab-profile" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">Профиль</button>
         <button onclick="switchTab('tariff')" id="tab-tariff" class="text-sm font-semibold text-blue-400 transition-colors px-2 py-1">Подписка</button>
+        <button onclick="switchTab('gift')" id="tab-gift" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">🎁 Подарок</button>
         <button onclick="switchTab('tasks')" id="tab-tasks" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">Задания</button>
         <button onclick="switchTab('help')" id="tab-help" class="text-sm font-semibold text-gray-400 transition-colors px-2 py-1">Помощь</button>
     </div>
 
     <div class="pt-20 px-4">
         
+        <!-- ===== PROFILE ===== -->
         <div id="content-profile" class="tab-content space-y-6">
             <div class="glass rounded-3xl p-6 text-center space-y-4">
                 <div class="relative inline-block">
@@ -52,8 +54,22 @@
                     <div id="traffic-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full transition-all duration-1000" style="width: 0%"></div>
                 </div>
             </div>
+
+            <!-- Секция докупки трафика (показывается при >=90% лимита) -->
+            <div id="traffic-topup-section" style="display:none"></div>
+
+            <!-- Реферальный баланс -->
+            <div id="referral-balance-section" class="glass rounded-2xl p-5">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="font-bold text-sm">💰 Реферальный баланс</div>
+                    <div id="ref-balance-amount" class="text-blue-400 font-bold">0₽</div>
+                </div>
+                <div class="text-xs text-gray-400 mb-3">Зарабатывайте, приглашая друзей. Используйте баланс для оплаты подписки.</div>
+                <div id="ref-balance-info" class="text-xs text-gray-500"></div>
+            </div>
         </div>
 
+        <!-- ===== TARIFF ===== -->
         <div id="content-tariff" class="tab-content active space-y-6">
             <div class="text-center">
                 <h1 class="text-2xl font-bold mb-1">VIP Обход</h1>
@@ -97,19 +113,91 @@
 
             <div class="space-y-3">
                 <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">3. Способ оплаты</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <div onclick="selectPayment('cryptopay')" id="pay-cryptopay" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3 border-2 border-transparent">
+                <div class="grid grid-cols-3 gap-2">
+                    <div onclick="selectPayment('cryptopay')" id="pay-cryptopay" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex flex-col items-center space-y-2 border-2 border-transparent">
                         <div class="text-xl text-yellow-500"><i class="fa-brands fa-bitcoin"></i></div>
-                        <div class="text-sm font-bold">Крипто</div>
+                        <div class="text-xs font-bold">Крипто</div>
                     </div>
-                    <div onclick="selectPayment('platega')" id="pay-platega" class="glass rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3 border-2 border-transparent">
+                    <div onclick="selectPayment('platega')" id="pay-platega" class="glass rounded-xl p-4 cursor-pointer transition-all flex flex-col items-center space-y-2 border-2 border-transparent">
                         <div class="text-xl text-blue-400"><i class="fa-solid fa-credit-card"></i></div>
-                        <div class="text-sm font-bold">Карта / СБП</div>
+                        <div class="text-xs font-bold">Карта / СБП</div>
+                    </div>
+                    <div onclick="payFromReferralBalance()" id="pay-referral" class="glass rounded-xl p-4 cursor-pointer transition-all flex flex-col items-center space-y-2 border-2 border-transparent hover:border-green-500/30">
+                        <div class="text-xl text-green-400"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="text-xs font-bold text-center">Из баланса<br><span id="pay-ref-balance" class="text-green-400">0₽</span></div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- ===== GIFT ===== -->
+        <div id="content-gift" class="tab-content space-y-6">
+            <div class="text-center">
+                <h1 class="text-2xl font-bold mb-1">🎁 Подарить VPN</h1>
+                <p class="text-sm text-gray-400">Купите подписку для друга</p>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">1. Тариф</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="selectGiftTier('premium')" id="gift-tier-premium" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="font-bold">🚀 VIP</div>
+                        <div class="text-xs text-gray-400 mt-1">Обход белых списков</div>
+                    </div>
+                    <div onclick="selectGiftTier('standard')" id="gift-tier-standard" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="font-bold">🛡 Стандарт</div>
+                        <div class="text-xs text-gray-400 mt-1">Обычный VPN</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">2. Срок</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="selectGiftDuration(1)" id="gift-dur-1" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">1 Месяц</div>
+                    </div>
+                    <div onclick="selectGiftDuration(3)" id="gift-dur-3" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">3 Месяца</div>
+                        <div class="text-xs text-green-400">-10%</div>
+                    </div>
+                    <div onclick="selectGiftDuration(6)" id="gift-dur-6" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">6 Месяцев</div>
+                        <div class="text-xs text-green-400">-17%</div>
+                    </div>
+                    <div onclick="selectGiftDuration(12)" id="gift-dur-12" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">1 Год</div>
+                        <div class="text-xs text-green-400">-25%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">3. Оплата</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="selectPayment('cryptopay')" id="gift-pay-crypto" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3" onclick="state.paymentMethod='cryptopay'">
+                        <div class="text-xl text-yellow-500"><i class="fa-brands fa-bitcoin"></i></div>
+                        <div class="text-sm font-bold">Крипто</div>
+                    </div>
+                    <div onclick="selectPayment('platega')" id="gift-pay-card" class="glass rounded-xl p-4 cursor-pointer transition-all flex items-center space-x-3">
+                        <div class="text-xl text-blue-400"><i class="fa-solid fa-credit-card"></i></div>
+                        <div class="text-sm font-bold">Карта / СБП</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-5 text-center">
+                <div class="text-gray-400 text-sm mb-2">Итого:</div>
+                <div class="text-3xl font-black"><span id="gift-total-price">300</span> ₽</div>
+                <div class="text-xs text-gray-500 mt-2">После оплаты вы получите ссылку для друга</div>
+            </div>
+
+            <button onclick="createGift()" class="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl text-lg font-bold transition">
+                🎁 Оплатить и подарить
+            </button>
+        </div>
+
+        <!-- ===== TASKS ===== -->
         <div id="content-tasks" class="tab-content space-y-4">
             <h2 class="text-xl font-bold mb-4 text-center">Бонусы и Дни</h2>
             
@@ -119,9 +207,7 @@
                         <h3 class="font-bold text-lg">Подписка на канал</h3>
                         <p class="text-xs text-gray-400 mt-1">NEMO VPN OFFICIAL</p>
                     </div>
-                    <div class="bg-blue-500/20 text-blue-400 text-xs font-bold px-2 py-1 rounded-lg">
-                        +3 ДНЯ
-                    </div>
+                    <div class="bg-blue-500/20 text-blue-400 text-xs font-bold px-2 py-1 rounded-lg">+3 ДНЯ</div>
                 </div>
                 <div class="space-y-2">
                     <a href="https://t.me/nemo_vpn_official" target="_blank" class="block w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-center text-sm font-bold transition">
@@ -165,6 +251,7 @@
             </div>
         </div>
 
+        <!-- ===== HELP ===== -->
         <div id="content-help" class="tab-content space-y-4">
             <h2 class="text-xl font-bold mb-4 text-center">Инструкции</h2>
             <a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690" target="_blank" class="glass rounded-2xl p-4 flex items-center transition hover:bg-white/10">
@@ -198,7 +285,7 @@
 
     </div>
 
-    <script src="js/api.js?v=2.0"></script>
-    <script src="js/app.js?v=2.0"></script>
+    <script src="js/api.js?v=3.0"></script>
+    <script src="js/app.js?v=3.0"></script>
 </body>
 </html>
