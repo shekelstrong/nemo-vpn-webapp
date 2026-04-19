@@ -55,6 +55,15 @@
                 </div>
             </div>
 
+            <!-- Докупить трафик (только для VIP с лимитом) -->
+            <button id="btn-buy-traffic" onclick="showView('traffic')" style="display:none" class="w-full glass rounded-2xl p-4 flex items-center justify-between hover:bg-white/5 transition">
+                <div>
+                    <h3 class="font-bold text-base">📦 Докупить трафик</h3>
+                    <p class="text-xs text-gray-400 mt-1">Добавьте гигабайты к вашему лимиту</p>
+                </div>
+                <div class="text-xl text-blue-400"><i class="fa-solid fa-bolt"></i></div>
+            </button>
+
             <!-- Реферальный баланс -->
             <div id="referral-balance-section" class="glass rounded-2xl p-5">
                 <div class="flex justify-between items-center mb-2">
@@ -228,19 +237,19 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div onclick="selectGiftDuration(1)" id="gift-dur-1" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">1 Месяц</div>
-                        <div class="text-xs text-blue-300">100 ГБ</div>
+                        <div id="gift-gb-1" class="text-xs text-blue-300">100 ГБ</div>
                     </div>
                     <div onclick="selectGiftDuration(3)" id="gift-dur-3" class="glass rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">3 Месяца</div>
-                        <div class="text-xs text-blue-300">350 ГБ</div>
+                        <div id="gift-gb-3" class="text-xs text-blue-300">350 ГБ</div>
                     </div>
                     <div onclick="selectGiftDuration(6)" id="gift-dur-6" class="glass rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">6 Месяцев</div>
-                        <div class="text-xs text-blue-300">800 ГБ</div>
+                        <div id="gift-gb-6" class="text-xs text-blue-300">800 ГБ</div>
                     </div>
                     <div onclick="selectGiftDuration(12)" id="gift-dur-12" class="glass rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">1 Год</div>
-                        <div class="text-xs text-blue-300">2 ТБ</div>
+                        <div id="gift-gb-12" class="text-xs text-blue-300">2 ТБ</div>
                     </div>
                 </div>
             </div>

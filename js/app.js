@@ -57,7 +57,8 @@ function updateProfileUI() {
     const u = state.user;
     if (!u) return;
 
-    document.getElementById('user-name').innerText = u.username ? `@${u.username}` : u.tg_id;
+    const name = u.username ? `@${u.username}` : `ID: ${u.user_id}`;
+    document.getElementById('user-name').innerText = name;
     document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username||'U')}&background=3b82f6&color=fff`;
     
     const tier = u.tier || 'standard';
@@ -65,16 +66,9 @@ function updateProfileUI() {
     document.getElementById('profile-tier').innerText = tier === 'premium' ? '🚀 VIP' : '🛡 Стандарт';
 
     // Days left
-    if (u.expire_date) {
-        const exp = new Date(u.expire_date);
-        const now = new Date();
-        const days = Math.max(0, Math.ceil((exp - now) / 86400000));
-        document.getElementById('days-left').innerText = days;
-        document.getElementById('status-text').innerText = days > 0 ? 'Активен' : 'Истёк';
-    } else {
-        document.getElementById('days-left').innerText = '0';
-        document.getElementById('status-text').innerText = 'Нет подписки';
-    }
+    const days = u.days_left || 0;
+    document.getElementById('days-left').innerText = days;
+    document.getElementById('status-text').innerText = days > 0 ? 'Активен' : 'Нет подписки';
 
     // Traffic
     const used = u.used_traffic || 0;
@@ -100,6 +94,12 @@ function updateProfileUI() {
     // Ref link
     if (u.ref_link) document.getElementById('ref-url').value = u.ref_link;
     updateRefIcons(u.refs_paid_count);
+    
+    // Show traffic topup button for VIP with limit
+    const btnTraffic = document.getElementById('btn-buy-traffic');
+    if (btnTraffic) {
+        btnTraffic.style.display = (tier === 'premium' && limit > 0) ? 'flex' : 'none';
+    }
 }
 
 function updateDurationUI() {
@@ -373,6 +373,13 @@ function selectGiftTier(tier) {
     state.giftTier = tier;
     document.getElementById('gift-tier-premium').classList.toggle('glass-active', tier === 'premium');
     document.getElementById('gift-tier-standard').classList.toggle('glass-active', tier === 'standard');
+    // Update GB labels
+    if (tier === 'standard') {
+        [1,3,6,12].forEach(m => { const el = document.getElementById(`gift-gb-${m}`); if(el) el.innerText = '♾️ Безлимит'; });
+    } else {
+        const gbMap = {1:'100 ГБ', 3:'350 ГБ', 6:'800 ГБ', 12:'2 ТБ'};
+        [1,3,6,12].forEach(m => { const el = document.getElementById(`gift-gb-${m}`); if(el) el.innerText = gbMap[m]; });
+    }
     updateGiftPrice();
 }
 
