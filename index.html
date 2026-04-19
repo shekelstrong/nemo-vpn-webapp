@@ -71,12 +71,27 @@
         <!-- ===== TARIFF ===== -->
         <div id="content-tariff" class="tab-content active space-y-6">
             <div class="text-center">
-                <h1 class="text-2xl font-bold mb-1">VIP Обход</h1>
+                <h1 class="text-2xl font-bold mb-1">Подписка</h1>
                 <p class="text-sm text-gray-400">Настройте идеальный план под себя</p>
             </div>
 
+            <!-- Выбор тарифа -->
             <div class="space-y-3">
-                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">1. Выберите срок и лимит</h2>
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">1. Выберите тариф</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="selectTier('premium')" id="tier-premium" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">🚀 VIP</div>
+                        <div class="text-xs text-gray-400">Обход белых списков</div>
+                    </div>
+                    <div onclick="selectTier('standard')" id="tier-standard" class="glass rounded-xl p-4 cursor-pointer transition-all">
+                        <div class="text-lg font-bold">🛡 Стандарт</div>
+                        <div class="text-xs text-gray-400">Обычный VPN</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">2. Выберите срок и лимит</h2>
                 <div class="grid grid-cols-2 gap-3">
                     <div onclick="selectDuration(1)" id="dur-1" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all">
                         <div class="text-lg font-bold">1 Месяц</div>
@@ -96,6 +111,14 @@
                         <div class="text-sm text-blue-300 mt-1"><i class="fa-solid fa-bolt mr-1"></i> 2 ТБ</div>
                     </div>
                 </div>
+                
+                <!-- Тестовый период -->
+                <div id="trial-button" class="block">
+                    <button onclick="selectDuration(0.1)" id="dur-trial" class="w-full glass rounded-xl p-4 cursor-pointer transition-all text-center hover:bg-white/5">
+                        <div class="text-base font-bold">🥉 Тестовый период — 3 дня (3 ГБ)</div>
+                        <div class="text-xs text-gray-400 mt-1">100₽ для VIP • 10₽ для Стандарт</div>
+                    </button>
+                </div>
             </div>
 
             <button onclick="switchTab('gift')" class="w-full glass rounded-2xl p-4 flex items-center justify-between hover:bg-white/5 transition">
@@ -107,7 +130,7 @@
             </button>
 
             <div class="space-y-3">
-                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">2. Способ оплаты</h2>
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 font-semibold pl-1">3. Способ оплаты</h2>
                 <div class="grid grid-cols-3 gap-2">
                     <div onclick="selectPayment('cryptopay')" id="pay-cryptopay" class="glass glass-active rounded-xl p-4 cursor-pointer transition-all flex flex-col items-center space-y-2 border-2 border-transparent">
                         <div class="text-xl text-yellow-500"><i class="fa-brands fa-bitcoin"></i></div>

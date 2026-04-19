@@ -9,6 +9,7 @@ tg.expand();
 let state = {
     user: null,
     months: 1,
+    tier: 'premium',
     devices: 1,
     totalPrice: 300,
     paymentMethod: 'cryptopay',
@@ -19,6 +20,7 @@ let state = {
     giftMonths: 1
 };
 
+const BASE_PRICES = { premium: 300, standard: 100 };
 const BASE_PRICE = 300;
 const DEVICE_EXTRA_PRICE = 100;
 const GIFT_PRICES = {
@@ -352,13 +354,34 @@ function switchTab(tabName) {
 
 // ==================== TARIFF ====================
 
+function selectTier(tier) {
+    state.tier = tier;
+    document.getElementById('tier-premium').classList.toggle('glass-active', tier === 'premium');
+    document.getElementById('tier-standard').classList.toggle('glass-active', tier === 'standard');
+    // Update trial button text
+    const trialEl = document.getElementById('dur-trial');
+    if (trialEl) {
+        const trialPrice = tier === 'premium' ? '100₽' : '10₽';
+        trialEl.innerHTML = `<div class="text-base font-bold">🥉 Тестовый период — 3 дня (3 ГБ)</div><div class="text-xs text-gray-400 mt-1">${trialPrice}</div>`;
+    }
+    updatePrice();
+}
+
 function selectDuration(m) {
-    let parsedMonths = typeof m === 'object' ? parseInt(m.currentTarget?.id.replace('dur-', '') || 1, 10) : parseInt(m, 10);
-    if (isNaN(parsedMonths)) return;
-    state.months = parsedMonths;
-    [1, 3, 6, 12].forEach(val => {
-        document.getElementById(`dur-${val}`).classList.toggle('glass-active', val === state.months);
-    });
+    const isTrial = m === 0.1;
+    if (isTrial) {
+        state.months = 0.1;
+        [1, 3, 6, 12].forEach(val => document.getElementById(`dur-${val}`).classList.remove('glass-active'));
+        document.getElementById('dur-trial').classList.add('glass-active');
+    } else {
+        let parsedMonths = parseInt(m, 10);
+        if (isNaN(parsedMonths)) return;
+        state.months = parsedMonths;
+        [1, 3, 6, 12].forEach(val => {
+            document.getElementById(`dur-${val}`).classList.toggle('glass-active', val === state.months);
+        });
+        document.getElementById('dur-trial').classList.remove('glass-active');
+    }
     updatePrice();
 }
 
@@ -381,17 +404,25 @@ function selectPayment(method) {
 }
 
 function updatePrice() {
-    const baseMonthPrice = BASE_PRICE;
-    let discountMultiplier = 1.0;
-    if (months === 3) discountMultiplier = 0.90;
-    else if (months === 6) discountMultiplier = 0.83;
-    else if (months === 12) discountMultiplier = 0.75;
-
-    let total = Math.round((baseMonthPrice * months) * discountMultiplier);
-    if (isNaN(total)) total = BASE_PRICE;
-
-    state.totalPrice = total;
-    state.gbLimit = GB_LIMITS_GIFT[months] || (months * 100);
+    const tier = state.tier || 'premium';
+    const months = parseInt(state.months, 10) || 1;
+    
+    if (state.months === 0.1) {
+        // Trial
+        state.totalPrice = tier === 'premium' ? 100 : 10;
+        state.gbLimit = 3;
+    } else {
+        const base = BASE_PRICES[tier] || 300;
+        let discountMultiplier = 1.0;
+        if (months === 3) discountMultiplier = 0.90;
+        else if (months === 6) discountMultiplier = 0.83;
+        else if (months === 12) discountMultiplier = 0.75;
+        let total = Math.round((base * months) * discountMultiplier);
+        if (isNaN(total)) total = base;
+        state.totalPrice = total;
+        state.gbLimit = GB_LIMITS_GIFT[months] || (months * 100);
+    }
+    
     tg.MainButton.setText(`ОФОРМИТЬ ЗА ${state.totalPrice} ₽`);
 }
 
@@ -403,11 +434,12 @@ async function createInvoice() {
     try {
         const data = await apiCreateInvoice({
             tg_id: tg_id,
-            days: state.months * 30,
+            days: state.months === 0.1 ? 3 : state.months * 30,
             amount: state.totalPrice,
             payment_method: state.paymentMethod,
             device_count: state.devices,
-            gb_limit: state.gbLimit || 100
+            gb_limit: state.gbLimit || 100,
+            tier: state.tier || 'premium'
         });
         if (data.status === "success" && data.pay_url) {
             if (data.pay_url.includes('t.me/')) {
