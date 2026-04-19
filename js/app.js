@@ -230,6 +230,7 @@ function showView(view) {
             document.getElementById('traffic-limit').innerText = (u.gb_limit || 0).toFixed(0) + ' ГБ';
             state.trafficPkg = null;
             document.getElementById('traffic-pay-section').style.display = 'none';
+            document.getElementById('traffic-total').style.display = 'none';
             [50,100,300,500].forEach(gb => document.getElementById(`tpkg-${gb}`).classList.remove('glass-active'));
         }
     }
@@ -378,6 +379,8 @@ async function payFromReferralBalance() {
         const data = await apiPayFromReferral(tg_id, days, state.tier || 'premium', price);
         if (data.status === "success") {
             tg.showAlert("✅ Подписка оформлена из реферального баланса!");
+            tg.MainButton.hide();
+            switchTab('profile');
             init();
         } else {
             tg.showAlert("Ошибка: " + (data.error || "Недостаточно средств"));
@@ -394,6 +397,9 @@ function selectTrafficPkg(gb, price) {
     state.trafficPkg = { gb, price };
     [50,100,300,500].forEach(g => document.getElementById(`tpkg-${g}`).classList.toggle('glass-active', g === gb));
     document.getElementById('traffic-pay-section').style.display = 'block';
+    document.getElementById('traffic-total').style.display = 'block';
+    document.getElementById('traffic-price').innerText = price;
+    document.getElementById('traffic-gb-display').innerText = gb;
 }
 
 async function buyTrafficPay(method) {
