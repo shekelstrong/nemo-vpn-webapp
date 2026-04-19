@@ -32,6 +32,8 @@ const TRAFFIC_PACKAGES = [
     { gb: 300, price: 600 },
     { gb: 500, price: 1000 }
 ];
+const ROUTE_V2BOX = "v2box://import/eyJEbnNIb3N0cyI6e30sIkRvbWFpblN0cmF0ZWd5IjoiSVBJZk5vbk1hdGNoIiwiQmxvY2tTaXRlcyI6W10sIkxhc3RVcGRhdGVkIjoxNzc1OTYwOTM0LCJEb21lc3RpY0ROU0RvbWFpbiI6Imh0dHBzOlwvXC9kbnMuZ29vZ2xlXC9kbnMtcXVlcnkiLCJEb21lc3RpY0ROU1R5cGUiOiJEb1UiLCJVc2VDaHVua0ZpbGVzIjp0cnVlLCJSb3V0ZU9yZGVyIjoiYmxvY2stZGlyZWN0LXByb3h5IiwiUmVtb3RlRE5TVHlwZSI6IkRvVSIsIk5hbWUiOiLQoNCkIiwiR2xvYmFsUHJveHkiOnRydWUsIlJlbW90ZUROU0lwIjoiMS4xLjEuMSIsIkdlb2lwVXJsIjoiaHR0cHM6XC9cL2dpdGh1Yi5jb21cL0xveWFsc29sZGllclwvdjJyYXktcnVsZXMtZGF0XC9yZWxlYXNlc1wvbGF0ZXN0XC9kb3dubG9hZFwvZ2VvaXAuZGF0IiwiRmFrZURucyI6ZmFsc2UsIkRpcmVjdFNpdGVzIjpbImdlb3NpdGU6Y2F0ZWdvcnktcnUiXSwiQmxvY2tJcCI6W10sIkRpcmVjdElwIjpbIjEwLjAuMC4wXC84IiwiMTcyLjE2LjAuMFwvMTIiLCIxOTIuMTY4LjAuMFwvMTYiLCIxNjkuMjU0LjAuMFwvMTYiLCIyMjQuMC4wLjBcLzQiLCIyNTUuMjU1LjI1NS4yNTUiLCJnZW9pcDpydSJdLCJEb21lc3RpY0ROU0lwIjoiOC44LjguOCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOlwvXC9jbG91ZGZsYXJlLWRucy5jb21cL2Rucy1xdWVyeSIsIlByb3h5SXAiOltdLCJQcm94eVNpdGVzIjpbXSwiR2Vvc2l0ZVVybCI6Imh0dHBzOlwvXC9naXRodWIuY29tXC9Mb3lhbHNvbGRpZXJcL3YycmF5LXJ1bGVzLWRhdFwvcmVsZWFzZXNcL2xhdGVzdFwvZG93bmxvYWRcL2dlb3NpdGUuZGF0In0=";
+const ROUTE_HAPP = "happ://routing/add/eyJEbnNIb3N0cyI6e30sIkRvbWFpblN0cmF0ZWd5IjoiSVBJZk5vbk1hdGNoIiwiQmxvY2tTaXRlcyI6W10sIkxhc3RVcGRhdGVkIjoxNzc1OTYwOTM0LCJEb21lc3RpY0ROU0RvbWFpbiI6Imh0dHBzOlwvXC9kbnMuZ29vZ2xlXC9kbnMtcXVlcnkiLCJEb21lc3RpY0ROU1R5cGUiOiJEb1UiLCJVc2VDaHVua0ZpbGVzIjp0cnVlLCJSb3V0ZU9yZGVyIjoiYmxvY2stZGlyZWN0LXByb3h5IiwiUmVtb3RlRE5TVHlwZSI6IkRvVSIsIk5hbWUiOiLQoNCkIiwiR2xvYmFsUHJveHkiOnRydWUsIlJlbW90ZUROU0lwIjoiMS4xLjEuMSIsIkdlb2lwVXJsIjoiaHR0cHM6XC9cL2dpdGh1Yi5jb21cL0xveWFsc29sZGllclwvdjJyYXktcnVsZXMtZGF0XC9yZWxlYXNlc1wvbGF0ZXN0XC9kb3dubG9hZFwvZ2VvaXAuZGF0IiwiRmFrZURucyI6ZmFsc2UsIkRpcmVjdFNpdGVzIjpbImdlb3NpdGU6Y2F0ZWdvcnktcnUiXSwiQmxvY2tJcCI6W10sIkRpcmVjdElwIjpbIjEwLjAuMC4wXC84IiwiMTcyLjE2LjAuMFwvMTIiLCIxOTIuMTY4LjAuMFwvMTYiLCIxNjkuMjU0LjAuMFwvMTYiLCIyMjQuMC4wLjBcLzQiLCIyNTUuMjU1LjI1NS4yNTUiLCJnZW9pcDpydSJdLCJEb21lc3RpY0ROU0lwIjoiOC44LjguOCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOlwvXC9jbG91ZGZsYXJlLWRucy5jb21cL2Rucy1xdWVyeSIsIlByb3h5SXAiOltdLCJQcm94eVNpdGVzIjpbXSwiR2Vvc2l0ZVVybCI6Imh0dHBzOlwvXC9naXRodWIuY29tXC9Mb3lhbHNvbGRpZXJcL3YycmF5LXJ1bGVzLWRhdFwvcmVsZWFzZXNcL2xhdGVzdFwvZG93bmxvYWRcL2dlb3NpdGUuZGF0In0=";
 
 // ==================== INIT ====================
 async function init() {
@@ -57,9 +59,15 @@ function updateProfileUI() {
     const u = state.user;
     if (!u) return;
 
-    const name = u.username ? `@${u.username}` : `ID: ${u.user_id}`;
-    document.getElementById('user-name').innerText = name;
-    document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username||'U')}&background=3b82f6&color=fff`;
+    // Имя из Telegram
+    const tgUser = tg.initDataUnsafe?.user;
+    const displayName = tgUser?.first_name || tgUser?.username || u.username || `ID: ${u.user_id}`;
+    document.getElementById('user-name').innerText = displayName;
+    
+    // Аватар из Telegram
+    if (tgUser?.photo_url) {
+        document.getElementById('user-avatar').src = tgUser.photo_url;
+    }
     
     const tier = u.tier || 'standard';
     document.getElementById('badge-tier').innerText = tier === 'premium' ? 'VIP' : 'STD';
@@ -68,7 +76,12 @@ function updateProfileUI() {
     // Days left
     const days = u.days_left || 0;
     document.getElementById('days-left').innerText = days;
-    document.getElementById('status-text').innerText = days > 0 ? 'Активен' : 'Нет подписки';
+    const statusText = document.getElementById('status-text');
+    if (days > 0) {
+        statusText.innerText = 'Активен';
+    } else {
+        statusText.innerText = 'Нет подписки';
+    }
 
     // Traffic
     const used = u.used_traffic || 0;
@@ -100,6 +113,9 @@ function updateProfileUI() {
     if (btnTraffic) {
         btnTraffic.style.display = (tier === 'premium' && limit > 0) ? 'flex' : 'none';
     }
+    
+    // VPN ключи
+    renderVPNKeys(u);
 }
 
 function updateDurationUI() {
@@ -119,6 +135,78 @@ function updateDurationUI() {
 }
 
 // ==================== VIEWS ====================
+function renderVPNKeys(u) {
+    let keysContainer = document.getElementById('vpn-keys-container');
+    if (!keysContainer) {
+        keysContainer = document.createElement('div');
+        keysContainer.id = 'vpn-keys-container';
+        keysContainer.className = 'mt-2 mb-2';
+        const refSection = document.getElementById('referral-balance-section');
+        if (refSection) refSection.after(keysContainer);
+    }
+    
+    if (!u.sub_url && !u.vless_link) {
+        keysContainer.innerHTML = '';
+        return;
+    }
+    
+    let html = '<h2 class="text-sm uppercase tracking-wider text-gray-400 mb-3 pl-1">Ваши ключи доступа</h2>';
+    
+    if (u.sub_url) {
+        html += `
+        <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10" onclick="copyVpnKey('sub_url')">
+            <div class="flex justify-between items-center mb-2">
+                <div class="font-bold text-sm">\u{1F511} Ключ подписки (Auto)</div>
+                <i class="fa-solid fa-copy text-gray-500"></i>
+            </div>
+            <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.sub_url}</div>
+        </div>`;
+    }
+    if (u.vless_link) {
+        html += `
+        <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10" onclick="copyVpnKey('vless_link')">
+            <div class="flex justify-between items-center mb-2">
+                <div class="font-bold text-sm">\u{1F517} VLESS Ключ (Прямой)</div>
+                <i class="fa-solid fa-copy text-gray-500"></i>
+            </div>
+            <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vless_link}</div>
+        </div>`;
+    }
+    
+    if (u.tier === 'premium') {
+        html += `
+        <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">\u{1F680} VIP: Обход белых списков</h2>
+        <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10 border-purple-500/30" onclick="copyVpnKey('route_v2box')">
+            <div class="flex justify-between items-center mb-2"><div class="font-bold text-sm text-purple-300">Маршрутизация V2Box</div><i class="fa-solid fa-copy text-gray-500"></i></div>
+            <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${ROUTE_V2BOX}</div>
+        </div>
+        <div class="glass rounded-2xl p-4 cursor-pointer transition hover:bg-white/10 border-green-500/30" onclick="copyVpnKey('route_happ')">
+            <div class="flex justify-between items-center mb-2"><div class="font-bold text-sm text-green-300">Маршрутизация Happ</div><i class="fa-solid fa-copy text-gray-500"></i></div>
+            <div class="bg-black/20 rounded p-2 text-xs text-green-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${ROUTE_HAPP}</div>
+        </div>`;
+    }
+    
+    keysContainer.innerHTML = html;
+}
+
+function copyVpnKey(key) {
+    const u = state.user;
+    const keys = {
+        sub_url: u?.sub_url,
+        vless_link: u?.vless_link,
+        route_v2box: ROUTE_V2BOX,
+        route_happ: ROUTE_HAPP
+    };
+    const val = keys[key];
+    if (val) {
+        navigator.clipboard.writeText(val).then(() => tg.showAlert('\u2705 Скопировано!'));
+    }
+}
+
+function toggleKeyBlur(el) {
+    el.classList.toggle('blur-sm');
+}
+
 function showView(view) {
     state.currentView = view;
     const nav = document.getElementById('main-nav');
