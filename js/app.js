@@ -40,14 +40,9 @@ async function init() {
     tg.ready();
     tg.expand();
     const tg_id = tg.initDataUnsafe?.user?.id;
-    console.log('TG User:', JSON.stringify(tg.initDataUnsafe?.user));
-    if (!tg_id) {
-        console.error('No tg_id found');
-        return;
-    }
+    if (!tg_id) return;
     try {
         const data = await apiGetUser(tg_id);
-        console.log('API response:', JSON.stringify(data));
         if (data.user) {
             state.user = data.user;
             updateProfileUI();
