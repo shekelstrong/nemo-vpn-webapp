@@ -29,10 +29,10 @@ const GB_LIMITS_GIFT = { 1: 100, 3: 350, 6: 800, 12: 2048 };
 
 // Пакеты докупки трафика
 const TRAFFIC_PACKAGES = [
-    { gb: 50, price: 50 },
-    { gb: 100, price: 90 },
-    { gb: 300, price: 250 },
-    { gb: 500, price: 400 }
+    { gb: 50, price: 100 },
+    { gb: 100, price: 200 },
+    { gb: 300, price: 600 },
+    { gb: 500, price: 1000 }
 ];
 
 const ROUTE_V2BOX = "v2box://routes?multi=W3sibGlzdCI6WyJnZW9zaXRlOnJ1IiwiZG9tYWluOnJ1IiwiZG9tYWluOtGA0YQiXSwiaXNFbmFibGUiOnRydWUsIm1hdGNoTW9kZSI6ImRvbWFpbiIsIm5hbWUiOiJyb3V0ZS4zRjFENTdBOS0xRkZELTQ5MkMtOTY2NS1BRTJDNDU4QzE0QUIiLCJyZW1hcmsiOiJEaXJlY3QgUlUiLCJsaXN0SVAiOlsiZ2VvaXA6cnUiLCJnZW9pcDpwcml2YXRlIl0sInR5cGUiOiJJUCIsInRhZyI6ImRpcmVjdCJ9XQ==";
@@ -107,6 +107,12 @@ function updateProfileUI() {
 
     document.getElementById('ref-url').value = u.ref_link;
     updateRefIcons(u.refs_paid_count);
+
+    // Реферальный баланс
+    const refBalanceEl = document.getElementById('ref-balance-amount');
+    if (refBalanceEl) refBalanceEl.innerText = (u.referral_balance || 0).toFixed(0) + '₽';
+    const payRefEl = document.getElementById('pay-ref-balance');
+    if (payRefEl) payRefEl.innerText = (u.referral_balance || 0).toFixed(0) + '₽';
 
     // VPN ключи
     if (u.sub_url || u.vless_link) {
