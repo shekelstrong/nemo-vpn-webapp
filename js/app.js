@@ -82,7 +82,7 @@ function updateProfileUI() {
     }
 
     document.getElementById('days-left').innerText = u.days_left;
-    document.getElementById('profile-devices').innerText = u.device_count;
+    document.getElementById('profile-tier').innerText = u.tier === 'premium' ? '🚀 VIP' : '🛡 Стандарт';
 
     const statusText = document.getElementById('status-text');
     if (u.days_left > 0) {
@@ -363,14 +363,7 @@ function selectDuration(m) {
 }
 
 function changeDevices(delta) {
-    let current = parseInt(state.devices, 10) || 1;
-    let diff = parseInt(delta, 10) || 0;
-    const n = current + diff;
-    if (n >= 1 && n <= 10) {
-        state.devices = n;
-        document.getElementById('device-count').innerText = n;
-        updatePrice();
-    }
+    // Removed — device limits are no longer used
 }
 
 function selectPayment(method) {
@@ -388,9 +381,7 @@ function selectPayment(method) {
 }
 
 function updatePrice() {
-    const devices = parseInt(state.devices, 10) || 1;
-    const months = parseInt(state.months, 10) || 1;
-    const baseMonthPrice = BASE_PRICE + ((devices - 1) * DEVICE_EXTRA_PRICE);
+    const baseMonthPrice = BASE_PRICE;
     let discountMultiplier = 1.0;
     if (months === 3) discountMultiplier = 0.90;
     else if (months === 6) discountMultiplier = 0.83;
