@@ -115,6 +115,33 @@ function updateProfileUI() {
         btnRegen.style.display = (u.sub_url || u.vless_link) ? 'flex' : 'none';
     }
     
+    // Subscriptions card
+    const subCard = document.getElementById('subscriptions-card');
+    const subStd = document.getElementById('sub-standard');
+    const subPrem = document.getElementById('sub-premium');
+    const hasStandard = u.standard_days > 0;
+    const hasPremium = u.premium_days > 0;
+    
+    if (hasStandard || hasPremium) {
+        subCard.style.display = 'block';
+        if (hasStandard) {
+            subStd.style.display = 'flex';
+            document.getElementById('sub-standard-days').innerText = u.standard_days + ' дн.';
+            document.getElementById('sub-standard-date').innerText = 'до ' + (u.standard_expire || '');
+        } else {
+            subStd.style.display = 'none';
+        }
+        if (hasPremium) {
+            subPrem.style.display = 'flex';
+            document.getElementById('sub-premium-days').innerText = u.premium_days + ' дн.';
+            document.getElementById('sub-premium-date').innerText = 'до ' + (u.premium_expire || '');
+        } else {
+            subPrem.style.display = 'none';
+        }
+    } else {
+        subCard.style.display = 'none';
+    }
+    
     // Show traffic topup button for VIP with limit
     const btnTraffic = document.getElementById('btn-buy-traffic');
     if (btnTraffic) {
@@ -670,3 +697,4 @@ async function apiRegenerateKey(tg_id) {
         throw error;
     }
 }
+
