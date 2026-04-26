@@ -5,11 +5,19 @@
 
 const BACKEND_URL = "https://nemovpn.cfd"; 
 
+function getAuthHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+        headers['X-Telegram-InitData'] = window.Telegram.WebApp.initData;
+    }
+    return headers;
+}
+
 async function apiGetUser(tg_id) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/user?tg_id=${tg_id}`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+            headers: getAuthHeaders()
         });
         if (!response.ok) throw new Error("Пользователь не найден");
         return await response.json();
@@ -23,7 +31,7 @@ async function apiCreateInvoice(payload) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/invoice`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify(payload)
         });
         const data = await response.json();
@@ -39,7 +47,7 @@ async function apiCheckTask(tg_id) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/check_task`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id })
         });
         const data = await response.json();
@@ -55,7 +63,7 @@ async function apiBuyTraffic(tg_id, gb, price, payment_method) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/buy_traffic`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id, gb, price, payment_method })
         });
         const data = await response.json();
@@ -71,7 +79,7 @@ async function apiBuyTrafficReferral(tg_id, gb, price) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/buy_traffic_referral`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id, gb, price })
         });
         const data = await response.json();
@@ -88,7 +96,7 @@ async function apiCreateGift(tg_id, tier, months, price, payment_method) {
         const days = months * 30;
         const response = await fetch(`${BACKEND_URL}/api/create_gift`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id, tier, days, price, payment_method })
         });
         const data = await response.json();
@@ -104,7 +112,7 @@ async function apiPayFromReferral(tg_id, days, tier, amount) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/pay_referral`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id, days, tier, amount })
         });
         const data = await response.json();

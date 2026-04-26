@@ -574,7 +574,7 @@ async function giftFromReferral() {
         // Create gift code directly via referral balance
         const data = await fetch(`${BACKEND_URL || 'https://nemovpn.cfd'}/api/gift_referral`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id, tier: state.giftTier, days, amount: price })
         }).then(r => r.json());
         
@@ -637,6 +637,14 @@ function copyRefLink() {
     }
 }
 
+function getAuthHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+        headers['X-Telegram-InitData'] = window.Telegram.WebApp.initData;
+    }
+    return headers;
+}
+
 // ==================== REGENERATE KEY ====================
 function confirmRegenerateKey() {
     tg.showConfirm("Старая ссылка перестанет работать. Вам придётся обновить подписку в Happ. Срок и ГБ сохраняются. Перегенерировать?", (confirmed) => {
@@ -653,7 +661,7 @@ async function regenerateKey() {
     try {
         const response = await fetch(`${BACKEND_URL}/api/regenerate_key`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id })
         });
         const data = await response.json();
@@ -686,7 +694,7 @@ async function apiRegenerateKey(tg_id) {
     try {
         const response = await fetch(`${BACKEND_URL}/api/regenerate_key`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ tg_id })
         });
         const data = await response.json();
