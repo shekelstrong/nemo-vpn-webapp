@@ -109,6 +109,12 @@ function updateProfileUI() {
     if (u.ref_link) document.getElementById('ref-url').value = u.ref_link;
     updateRefIcons(u.refs_paid_count);
     
+    // Show regenerate key button for users with subscription
+    const btnRegen = document.getElementById('btn-regenerate-key');
+    if (btnRegen) {
+        btnRegen.style.display = (u.sub_url || u.vless_link) ? 'flex' : 'none';
+    }
+    
     // Show traffic topup button for VIP with limit
     const btnTraffic = document.getElementById('btn-buy-traffic');
     if (btnTraffic) {
@@ -604,6 +610,41 @@ function copyRefLink() {
     }
 }
 
+// ==================== REGENERATE KEY ====================
+function confirmRegenerateKey() {
+    tg.showConfirm("Старая ссылка перестанет работать. Вам придётся обновить подписку в Happ. Срок и ГБ сохраняются. Перегенерировать?", (confirmed) => {
+        if (confirmed) {
+            regenerateKey();
+        }
+    });
+}
+
+async function regenerateKey() {
+    const tg_id = tg.initDataUnsafe?.user?.id;
+    if (!tg_id) return;
+    tg.showAlert("⏳ Перегенерация ключа...");
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/regenerate_key`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tg_id })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Ошибка");
+        
+        if (data.sub_url) {
+            tg.showAlert("✅ Ключ перегенерирован! Обновите подписку в Happ.");
+            // Обновляем UI
+            if (state.user) {
+                state.user.sub_url = data.sub_url;
+                updateProfileUI();
+            }
+        }
+    } catch (err) {
+        tg.showAlert("❌ " + (err.message || "Ошибка перегенерации"));
+    }
+}
+
 // ==================== MAIN BUTTON ====================
 tg.MainButton.onClick(() => {
     if (state.currentView === 'main') {
@@ -613,3 +654,19 @@ tg.MainButton.onClick(() => {
 
 // ==================== START ====================
 init();
+
+async function apiRegenerateKey(tg_id) {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/regenerate_key`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tg_id })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Ошибка перегенерации");
+        return data;
+    } catch (error) {
+        console.error("API Error (regenerateKey):", error);
+        throw error;
+    }
+}

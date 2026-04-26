@@ -55,6 +55,15 @@
                 </div>
             </div>
 
+            <!-- Перегенерировать ключ -->
+            <button id="btn-regenerate-key" onclick="confirmRegenerateKey()" style="display:none" class="w-full glass rounded-2xl p-4 flex items-center justify-between hover:bg-white/5 transition border-red-500/20">
+                <div>
+                    <h3 class="font-bold text-base">🔄 Перегенерировать ключ</h3>
+                    <p class="text-xs text-gray-400 mt-1">Старая ссылка перестанет работать</p>
+                </div>
+                <div class="text-xl text-red-400"><i class="fa-solid fa-key"></i></div>
+            </button>
+
             <!-- Докупить трафик (только для VIP с лимитом) -->
             <button id="btn-buy-traffic" onclick="showView('traffic')" style="display:none" class="w-full glass rounded-2xl p-4 flex items-center justify-between hover:bg-white/5 transition">
                 <div>
