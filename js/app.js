@@ -148,6 +148,45 @@ function updateProfileUI() {
         btnTraffic.style.display = (tier === 'premium' && limit > 0) ? 'flex' : 'none';
     }
     
+    // VK subscription card
+    const vkCard = document.getElementById('vk-subscription-card');
+    if (vkCard) {
+        const hasVkSub = u.vk_sub_url && u.vk_sub_url.length > 0;
+        if (hasVkSub) {
+            vkCard.style.display = 'block';
+            const vkTrafficInfo = document.getElementById('vk-sub-traffic-info');
+            const vkExpire = document.getElementById('vk-sub-expire');
+            const vkUsedGb = document.getElementById('vk-used-gb');
+            const vkTotalGb = document.getElementById('vk-total-gb');
+            const vkTrafficSection = document.getElementById('vk-traffic-section');
+            
+            // VK sub expire - same user, so show same dates as TG
+            const vkExpireStr = u.premium_expire || u.standard_expire || '';
+            const vkDaysLeft = Math.max(u.premium_days || 0, u.standard_days || 0, u.days_left || 0);
+            vkExpire.innerText = vkDaysLeft > 0 ? vkExpireStr : 'Истекла';
+            
+            if (vkTrafficInfo) {
+                if (u.vk_gb_limit > 0) {
+                    vkTrafficInfo.innerText = `${(u.vk_used_traffic || 0).toFixed(1)} / ${u.vk_gb_limit.toFixed(0)} ГБ`;
+                } else {
+                    vkTrafficInfo.innerText = 'Безлимитный трафик';
+                }
+            }
+            
+            if (u.vk_gb_limit > 0) {
+                vkTrafficSection.style.display = 'block';
+                vkUsedGb.innerText = (u.vk_used_traffic || 0).toFixed(1);
+                vkTotalGb.innerText = u.vk_gb_limit.toFixed(0);
+                const vkPct = Math.min(100, ((u.vk_used_traffic || 0) / u.vk_gb_limit) * 100);
+                document.getElementById('vk-traffic-bar').style.width = vkPct + '%';
+            } else {
+                vkTrafficSection.style.display = 'none';
+            }
+        } else {
+            vkCard.style.display = 'none';
+        }
+    }
+    
     // VPN ключи
     renderVPNKeys(u);
 }
@@ -207,6 +246,29 @@ function renderVPNKeys(u) {
         </div>`;
     }
     
+    // VK VPN keys
+    if (u.vk_sub_url) {
+        html += `
+        <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">\u{1F517} VK: Ключ подписки</h2>
+        <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10 border-purple-500/20" onclick="copyVpnKey('vk_sub_url')">
+            <div class="flex justify-between items-center mb-2">
+                <div class="font-bold text-sm text-purple-300">\u{1F511} VK Авто-ключ</div>
+                <i class="fa-solid fa-copy text-gray-500"></i>
+            </div>
+            <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vk_sub_url}</div>
+        </div>`;
+    }
+    if (u.vk_vless_link) {
+        html += `
+        <div class="glass rounded-2xl p-4 mb-3 cursor-pointer transition hover:bg-white/10 border-purple-500/20" onclick="copyVpnKey('vk_vless_link')">
+            <div class="flex justify-between items-center mb-2">
+                <div class="font-bold text-sm text-purple-300">\u{1F517} VK VLESS Ключ</div>
+                <i class="fa-solid fa-copy text-gray-500"></i>
+            </div>
+            <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vk_vless_link}</div>
+        </div>`;
+    }
+    
     if (u.tier === 'premium') {
         html += `
         <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">\u{1F680} VIP: Обход белых списков</h2>
@@ -224,7 +286,9 @@ function copyVpnKey(key) {
     const keys = {
         sub_url: u?.sub_url,
         vless_link: u?.vless_link,
-        route_happ: ROUTE_HAPP
+        route_happ: ROUTE_HAPP,
+        vk_sub_url: u?.vk_sub_url,
+        vk_vless_link: u?.vk_vless_link
     };
     const val = keys[key];
     if (val) {
