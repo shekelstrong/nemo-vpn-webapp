@@ -72,7 +72,7 @@ nemo-vpn-webapp/
 
 - [Telegram Bot](https://github.com/shekelstrong/vpn_bot) — Backend + TG bot
 - [VK Bot](https://github.com/shekelstrong/vpn-vk-bot) — VK Community version
-- [Nemo VPN Landing](https://github.com/shekelstrong/nemo-landing) — Website
+- [Nemo VPN Landing](https://nemo-landing-gamma.vercel.app/) — Website
 
 ---
 
