@@ -80,6 +80,30 @@
                 </div>
             </div>
 
+            <!-- VK подписка -->
+            <div id="vk-subscription-card" class="glass rounded-2xl p-5 space-y-3" style="display:none">
+                <div class="text-sm font-bold mb-2">🔗 VK Подписка</div>
+                <div class="flex justify-between items-center py-2">
+                    <div>
+                        <div class="text-sm">VPN из VK</div>
+                        <div id="vk-sub-traffic-info" class="text-xs text-gray-500"></div>
+                    </div>
+                    <div class="text-right">
+                        <span id="vk-sub-expire" class="text-sm font-bold text-purple-400"></span>
+                    </div>
+                </div>
+                <!-- VK traffic bar -->
+                <div id="vk-traffic-section" style="display:none">
+                    <div class="flex justify-between items-end mb-1">
+                        <div class="text-xs text-gray-400">Трафик VK</div>
+                        <div class="text-xs text-gray-400"><span id="vk-used-gb" class="text-purple-400 font-bold">0</span> / <span id="vk-total-gb">∞</span></div>
+                    </div>
+                    <div class="w-full bg-white/5 rounded-full h-2.5 overflow-hidden">
+                        <div id="vk-traffic-bar" class="bg-gradient-to-r from-purple-600 to-purple-400 h-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Перегенерировать ключ -->
             <button id="btn-regenerate-key" onclick="confirmRegenerateKey()" style="display:none" class="w-full glass rounded-2xl p-4 flex items-center justify-between hover:bg-white/5 transition border-red-500/20">
                 <div>
