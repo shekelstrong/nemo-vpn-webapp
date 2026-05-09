@@ -66,7 +66,7 @@ nemo-vpn-webapp/
 | 🧑 **Profile** | User info, subscription status, traffic bar, VPN keys |
 | 💳 **Subscription** | Tier selection, duration, payment methods |
 | ✅ **Tasks** | Channel subscription bonus, referral link |
-| ❓ **Help** | App links (Hiddify), support contact |
+| ❓ **Help** | App links (Happ), support contact |
 
 ## 🔗 Related
 
