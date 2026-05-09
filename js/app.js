@@ -32,8 +32,6 @@ const TRAFFIC_PACKAGES = [
     { gb: 300, price: 600 },
     { gb: 500, price: 1000 }
 ];
-// Ключ маршрутизации Happ (обход белых списков, РФ напрямую + DNS без утечек)
-const ROUTE_HAPP = "happ://routing/add/eyJOYW1lIjoi0KDQpCIsIkdsb2JhbFByb3h5Ijp0cnVlLCJEb21haW5TdHJhdGVneSI6IklQSWZOb25NYXRjaCIsIlJvdXRlT3JkZXIiOiJibG9jay1kaXJlY3QtcHJveHkiLCJEaXJlY3RTaXRlcyI6WyJnZW9zaXRlOmNhdGVnb3J5LXJ1Il0sIkRpcmVjdElwIjpbIjEwLjAuMC4wLzgiLCIxMDAuNjQuMC4wLzEwIiwiMTcyLjE2LjAuMC8xMiIsIjE5Mi4xNjguMC4wLzE2IiwiMTY5LjI1NC4wLjAvMTYiLCIyMjQuMC4wLjAvNCIsIjI1NS4yNTUuMjU1LjI1NSIsImdlb2lwOnJ1Il0sIlByb3h5U2l0ZXMiOltdLCJQcm94eUlwIjpbXSwiQmxvY2tTaXRlcyI6WyJnZW9zaXRlOmFkcyJdLCJCbG9ja0lwIjpbXSwiRG9tZXN0aWNETlNUeXBlIjoiRG9IIiwiRG9tZXN0aWNETlNJcCI6Ijc3Ljg4LjguOCIsIkRvbWVzdGljRE5TRG9tYWluIjoiaHR0cHM6Ly83Ny44OC44LjgvZG5zLXF1ZXJ5IiwiUmVtb3RlRE5TVHlwZSI6IkRvSCIsIlJlbW90ZUROU0lwIjoiMS4xLjEuMSIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOi8vY2xvdWRmbGFyZS1kbnMuY29tL2Rucy1xdWVyeSIsIkRuc0hvc3RzIjp7ImxrZmwyLm5hbG9nLnJ1IjoiMjEzLjI0LjY0LjE3NSIsImxrbnBkLm5hbG9nLnJ1IjoiMjEzLjI0LjY0LjE4MSJ9LCJHZW9pcFVybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9Mb3lhbHNvbGRpZXIvdjJyYXktcnVsZXMtZGF0L3JlbGVhc2VzL2xhdGVzdC9kb3dubG9hZC9nZW9pcC5kYXQiLCJHZW9zaXRlVXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL0xveWFsc29sZGllci92MnJheS1ydWxlcy1kYXQvcmVsZWFzZXMvbGF0ZXN0L2Rvd25sb2FkL2dlb3NpdGUuZGF0IiwiRmFrZURucyI6ZmFsc2UsIlVzZUNodW5rRmlsZXMiOnRydWUsIkxhc3RVcGRhdGVkIjowfQ==";
 
 // ==================== INIT ====================
 async function init() {
@@ -232,7 +230,7 @@ function renderVPNKeys(u) {
                 <div class="font-bold text-sm">\u{1F511} Ключ подписки (Auto)</div>
                 <i class="fa-solid fa-copy text-gray-500"></i>
             </div>
-            <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.sub_url ? u.sub_url + '/sing-box' : ''}</div>
+            <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.sub_url || ''}</div>
         </div>`;
     }
     if (u.vless_link) {
@@ -245,7 +243,7 @@ function renderVPNKeys(u) {
             <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vless_link}</div>
         </div>`;
     }
-    
+
     // VK VPN keys
     if (u.vk_sub_url) {
         html += `
@@ -268,26 +266,16 @@ function renderVPNKeys(u) {
             <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vk_vless_link}</div>
         </div>`;
     }
-    
-    if (u.tier === 'premium') {
-        html += `
-        <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">\u{1F680} VIP: Обход белых списков</h2>
-        <div class="glass rounded-2xl p-4 cursor-pointer transition hover:bg-white/10 border-green-500/30" onclick="copyVpnKey('route_happ')">
-            <div class="flex justify-between items-center mb-2"><div class="font-bold text-sm text-green-300">Маршрутизация Happ</div><i class="fa-solid fa-copy text-gray-500"></i></div>
-            <div class="bg-black/20 rounded p-2 text-xs text-green-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${ROUTE_HAPP}</div>
-        </div>`;
-    }
-    
+
     keysContainer.innerHTML = html;
 }
 
 function copyVpnKey(key) {
     const u = state.user;
     const keys = {
-        sub_url: u?.sub_url ? u.sub_url + '/sing-box' : u?.sub_url,
+        sub_url: u?.sub_url,
         vless_link: u?.vless_link,
-        route_happ: ROUTE_HAPP,
-        vk_sub_url: u?.vk_sub_url ? u.vk_sub_url + '/sing-box' : u?.vk_sub_url,
+        vk_sub_url: u?.vk_sub_url,
         vk_vless_link: u?.vk_vless_link
     };
     const val = keys[key];
