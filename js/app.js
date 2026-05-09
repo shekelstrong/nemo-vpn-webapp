@@ -32,8 +32,7 @@ const TRAFFIC_PACKAGES = [
     { gb: 300, price: 600 },
     { gb: 500, price: 1000 }
 ];
-// ROUTE_V2BOX удалён — V2Box больше не поддерживается
-const ROUTE_HAPP = "happ://routing/add/eyJEbnNIb3N0cyI6e30sIkRvbWFpblN0cmF0ZWd5IjoiSVBJZk5vbk1hdGNoIiwiQmxvY2tTaXRlcyI6W10sIkxhc3RVcGRhdGVkIjoxNzc1OTYwOTM0LCJEb21lc3RpY0ROU0RvbWFpbiI6Imh0dHBzOlwvXC9kbnMuZ29vZ2xlXC9kbnMtcXVlcnkiLCJEb21lc3RpY0ROU1R5cGUiOiJEb1UiLCJVc2VDaHVua0ZpbGVzIjp0cnVlLCJSb3V0ZU9yZGVyIjoiYmxvY2stZGlyZWN0LXByb3h5IiwiUmVtb3RlRE5TVHlwZSI6IkRvVSIsIk5hbWUiOiLQoNCkIiwiR2xvYmFsUHJveHkiOnRydWUsIlJlbW90ZUROU0lwIjoiMS4xLjEuMSIsIkdlb2lwVXJsIjoiaHR0cHM6XC9cL2dpdGh1Yi5jb21cL0xveWFsc29sZGllclwvdjJyYXktcnVsZXMtZGF0XC9yZWxlYXNlc1wvbGF0ZXN0XC9kb3dubG9hZFwvZ2VvaXAuZGF0IiwiRmFrZURucyI6ZmFsc2UsIkRpcmVjdFNpdGVzIjpbImdlb3NpdGU6Y2F0ZWdvcnktcnUiXSwiQmxvY2tJcCI6W10sIkRpcmVjdElwIjpbIjEwLjAuMC4wXC84IiwiMTcyLjE2LjAuMFwvMTIiLCIxOTIuMTY4LjAuMFwvMTYiLCIxNjkuMjU0LjAuMFwvMTYiLCIyMjQuMC4wLjBcLzQiLCIyNTUuMjU1LjI1NS4yNTUiLCJnZW9pcDpydSJdLCJEb21lc3RpY0ROU0lwIjoiOC44LjguOCIsIlJlbW90ZUROU0RvbWFpbiI6Imh0dHBzOlwvXC9jbG91ZGZsYXJlLWRucy5jb21cL2Rucy1xdWVyeSIsIlByb3h5SXAiOltdLCJQcm94eVNpdGVzIjpbXSwiR2Vvc2l0ZVVybCI6Imh0dHBzOlwvXC9naXRodWIuY29tXC9Mb3lhbHNvbGRpZXJcL3YycmF5LXJ1bGVzLWRhdFwvcmVsZWFzZXNcL2xhdGVzdFwvZG93bmxvYWRcL2dlb3NpdGUuZGF0In0=";
+// Routing key больше не нужен — маршрутизация встроена в подписку Hiddify (sing-box)
 
 // ==================== INIT ====================
 async function init() {
@@ -232,7 +231,7 @@ function renderVPNKeys(u) {
                 <div class="font-bold text-sm">\u{1F511} Ключ подписки (Auto)</div>
                 <i class="fa-solid fa-copy text-gray-500"></i>
             </div>
-            <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.sub_url}</div>
+            <div class="bg-black/20 rounded p-2 text-xs text-blue-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.sub_url + '/sing-box'}</div>
         </div>`;
     }
     if (u.vless_link) {
@@ -255,7 +254,7 @@ function renderVPNKeys(u) {
                 <div class="font-bold text-sm text-purple-300">\u{1F511} VK Авто-ключ</div>
                 <i class="fa-solid fa-copy text-gray-500"></i>
             </div>
-            <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vk_sub_url}</div>
+            <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vk_sub_url + '/sing-box'}</div>
         </div>`;
     }
     if (u.vk_vless_link) {
@@ -271,10 +270,10 @@ function renderVPNKeys(u) {
     
     if (u.tier === 'premium') {
         html += `
-        <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">\u{1F680} VIP: Обход белых списков</h2>
-        <div class="glass rounded-2xl p-4 cursor-pointer transition hover:bg-white/10 border-green-500/30" onclick="copyVpnKey('route_happ')">
-            <div class="flex justify-between items-center mb-2"><div class="font-bold text-sm text-green-300">Маршрутизация Happ</div><i class="fa-solid fa-copy text-gray-500"></i></div>
-            <div class="bg-black/20 rounded p-2 text-xs text-green-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${ROUTE_HAPP}</div>
+        <h2 class="text-sm uppercase tracking-wider text-purple-400 mt-5 mb-3 pl-1">🚀 VIP: Обход белых списков</h2>
+        <div class="glass rounded-2xl p-4 border-green-500/30">
+            <div class="font-bold text-sm text-green-300 mb-1">Маршрутизация встроена</div>
+            <div class="text-xs text-gray-400">Российские сайты идут напрямую от провайдера. Подписка Hiddify уже содержит все правила routing и DNS — отдельный ключ не нужен.</div>
         </div>`;
     }
     
@@ -284,10 +283,10 @@ function renderVPNKeys(u) {
 function copyVpnKey(key) {
     const u = state.user;
     const keys = {
-        sub_url: u?.sub_url,
+        sub_url: u?.sub_url ? u.sub_url + '/sing-box' : u?.sub_url,
         vless_link: u?.vless_link,
-        route_happ: ROUTE_HAPP,
-        vk_sub_url: u?.vk_sub_url,
+        route_hiddify: 'Маршрутизация уже встроена в подписку Hiddify — отдельный ключ не нужен',
+        vk_sub_url: u?.vk_sub_url ? u.vk_sub_url + '/sing-box' : u?.vk_sub_url,
         vk_vless_link: u?.vk_vless_link
     };
     const val = keys[key];
@@ -711,7 +710,7 @@ function getAuthHeaders() {
 
 // ==================== REGENERATE KEY ====================
 function confirmRegenerateKey() {
-    tg.showConfirm("Старая ссылка перестанет работать. Вам придётся обновить подписку в Happ. Срок и ГБ сохраняются. Перегенерировать?", (confirmed) => {
+    tg.showConfirm("Старая ссылка перестанет работать. Вам придётся обновить подписку в Hiddify. Срок и ГБ сохраняются. Перегенерировать?", (confirmed) => {
         if (confirmed) {
             regenerateKey();
         }
@@ -732,7 +731,7 @@ async function regenerateKey() {
         if (!response.ok) throw new Error(data.error || "Ошибка");
         
         if (data.sub_url) {
-            tg.showAlert("✅ Ключ перегенерирован! Обновите подписку в Happ.");
+            tg.showAlert("✅ Ключ перегенерирован! Обновите подписку в Hiddify.");
             // Обновляем UI
             if (state.user) {
                 state.user.sub_url = data.sub_url;
