@@ -123,3 +123,20 @@ async function apiPayFromReferral(tg_id, days, tier, amount) {
         throw error;
     }
 }
+
+// ==================== GUEST REGISTRATION (non-TG) ====================
+async function apiRegisterGuest() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/register_guest`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Ошибка регистрации");
+        return data;
+    } catch (error) {
+        console.error("API Error (registerGuest):", error);
+        throw error;
+    }
+}

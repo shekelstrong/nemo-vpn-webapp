@@ -2,13 +2,14 @@
 let state = {
     user: null,
     months: 1,
-    tier: 'premium',
-    totalPrice: 300,
+    totalPrice: 500,
     paymentMethod: 'cryptopay',
     trafficPkg: null,
-    giftTier: 'premium',
     giftMonths: 1,
-    currentView: 'main'
+    currentView: 'main',
+    isStandalone: false,
+    guestUserId: null,
+    selectedStandalonePlan: null
 };
 
 const tg = window.Telegram?.WebApp || { 
@@ -19,18 +20,21 @@ const tg = window.Telegram?.WebApp || {
     ready: ()=>{}, expand: ()=>{}, close: ()=>{}
 };
 
-const BASE_PRICES = { premium: 300, standard: 100 };
-const GB_LIMITS = { 1: 100, 3: 350, 6: 800, 12: 2048 };
-const GIFT_PRICES = {
-    standard: { 1: 150, 3: 400, 6: 700, 12: 1200 },
-    premium: { 1: 400, 3: 1050, 6: 1900, 12: 3500 }
-};
-const GB_LIMITS_GIFT = { 1: 100, 3: 350, 6: 800, 12: 2048 };
+// ==================== UNIFIED PRICING ====================
+// Subscriptions: days -> price in ₽
+const SUBSCRIPTION_PRICES = { 3: 200, 30: 500, 90: 1500, 180: 2500, 365: 4500 };
+// Subscriptions: days -> GB limit
+const SUBSCRIPTION_GB = { 3: 10, 30: 100, 90: 350, 180: 800, 365: 2048 };
+// Gifts: months -> price in ₽ (unified — same for both configs)
+const GIFT_PRICES = { 1: 700, 3: 1800, 6: 3000, 12: 5500 };
+// Gift GB: months -> GB limit
+const GIFT_GB = { 1: 100, 3: 350, 6: 800, 12: 2048 };
+// Traffic top-up packages
 const TRAFFIC_PACKAGES = [
-    { gb: 50, price: 100 },
-    { gb: 100, price: 200 },
-    { gb: 300, price: 600 },
-    { gb: 500, price: 1000 }
+    { gb: 50, price: 200 },
+    { gb: 100, price: 400 },
+    { gb: 300, price: 1000 },
+    { gb: 500, price: 2000 }
 ];
 
 // ==================== INIT ====================
@@ -38,6 +42,31 @@ async function init() {
     tg.ready();
     tg.expand();
     const tg_id = tg.initDataUnsafe?.user?.id;
+
+    // Check for standalone mode (no Telegram or tg_id=0 or /pay path)
+    const isPayRoute = window.location.pathname === '/pay' || window.location.hash === '#pay';
+    if ((!tg_id || tg_id === 0) && !isPayRoute) {
+        // No Telegram context — show standalone checkout
+        state.isStandalone = true;
+        document.getElementById('main-nav').style.display = 'none';
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.view-content').forEach(el => el.style.display = 'none');
+        const standalone = document.getElementById('standalone-checkout');
+        if (standalone) standalone.style.display = 'block';
+        initStandaloneCheckout();
+        return;
+    }
+    if (isPayRoute && (!tg_id || tg_id === 0)) {
+        state.isStandalone = true;
+        document.getElementById('main-nav').style.display = 'none';
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.view-content').forEach(el => el.style.display = 'none');
+        const standalone = document.getElementById('standalone-checkout');
+        if (standalone) standalone.style.display = 'block';
+        initStandaloneCheckout();
+        return;
+    }
+
     if (!tg_id) return;
     try {
         const data = await apiGetUser(tg_id);
@@ -52,6 +81,26 @@ async function init() {
     } catch (err) {
         console.error('Init error:', err);
     }
+}
+
+// Check for /pay_success route
+function checkPaySuccess() {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('user_id');
+    if (userId && (window.location.pathname === '/pay_success' || window.location.hash === '#pay_success')) {
+        state.isStandalone = true;
+        document.getElementById('main-nav').style.display = 'none';
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.view-content').forEach(el => el.style.display = 'none');
+        const successDiv = document.getElementById('standalone-success');
+        if (successDiv) {
+            successDiv.style.display = 'block';
+            document.getElementById('success-user-id').innerText = userId;
+            document.getElementById('success-sub-link').innerText = `https://nemovpn.cfd/api/sub/${userId}`;
+        }
+        return true;
+    }
+    return false;
 }
 
 function updateProfileUI() {
@@ -140,10 +189,10 @@ function updateProfileUI() {
         subCard.style.display = 'none';
     }
     
-    // Show traffic topup button for VIP with limit
+    // Show traffic topup button for users with subscription and limit > 0
     const btnTraffic = document.getElementById('btn-buy-traffic');
     if (btnTraffic) {
-        btnTraffic.style.display = (tier === 'premium' && limit > 0) ? 'flex' : 'none';
+        btnTraffic.style.display = (limit > 0) ? 'flex' : 'none';
     }
     
     // VK subscription card
@@ -190,19 +239,12 @@ function updateProfileUI() {
 }
 
 function updateDurationUI() {
-    const tier = state.tier || 'premium';
-    // Update GB labels for durations
-    if (tier === 'standard') {
-        document.getElementById('dur-1-gb').innerText = '♾️ Безлимит';
-        document.getElementById('dur-3-gb').innerText = '♾️ Безлимит';
-        document.getElementById('dur-6-gb').innerText = '♾️ Безлимит';
-        document.getElementById('dur-12-gb').innerText = '♾️ Безлимит';
-    } else {
-        document.getElementById('dur-1-gb').innerText = '100 ГБ';
-        document.getElementById('dur-3-gb').innerText = '350 ГБ';
-        document.getElementById('dur-6-gb').innerText = '800 ГБ';
-        document.getElementById('dur-12-gb').innerText = '2 ТБ';
-    }
+    // Unified model — always show GB limits per plan
+    const gbLabels = { 1: '100 ГБ', 3: '350 ГБ', 6: '800 ГБ', 12: '2 ТБ' };
+    [1, 3, 6, 12].forEach(m => {
+        const el = document.getElementById(`dur-${m}-gb`);
+        if (el) el.innerText = gbLabels[m];
+    });
 }
 
 // ==================== VIEWS ====================
@@ -339,20 +381,6 @@ function switchTab(tabName) {
     }
 }
 
-// ==================== TIER ====================
-function selectTier(tier) {
-    state.tier = tier;
-    document.getElementById('tier-premium').classList.toggle('glass-active', tier === 'premium');
-    document.getElementById('tier-standard').classList.toggle('glass-active', tier === 'standard');
-    updateDurationUI();
-    
-    const trialEl = document.getElementById('trial-gb-price');
-    if (trialEl) {
-        trialEl.innerText = tier === 'premium' ? '3 ГБ за 100₽' : '10₽';
-    }
-    updatePrice();
-}
-
 // ==================== DURATION ====================
 function selectDuration(m) {
     const isTrial = m === 0.1;
@@ -383,22 +411,17 @@ function selectPayment(method) {
     if (giftCard) giftCard.classList.toggle('glass-active', method === 'platega');
 }
 
-// ==================== PRICE ====================
+// ==================== PRICE (UNIFIED) ====================
 function updatePrice() {
-    const tier = state.tier || 'premium';
-    
     if (state.months === 0.1) {
-        state.totalPrice = tier === 'premium' ? 100 : 10;
-        state.gbLimit = tier === 'premium' ? 3 : 0;
+        // Trial: 3 дня, 200₽, 10ГБ
+        state.totalPrice = 200;
+        state.gbLimit = 10;
     } else {
         const months = parseInt(state.months, 10) || 1;
-        const base = BASE_PRICES[tier] || 300;
-        let discount = 1.0;
-        if (months === 3) discount = 0.90;
-        else if (months === 6) discount = 0.83;
-        else if (months === 12) discount = 0.75;
-        state.totalPrice = Math.round(base * months * discount);
-        state.gbLimit = tier === 'premium' ? (GB_LIMITS[months] || months * 100) : 0;
+        const days = months * 30;
+        state.totalPrice = SUBSCRIPTION_PRICES[days] || 500;
+        state.gbLimit = SUBSCRIPTION_GB[days] || months * 100;
     }
     
     tg.MainButton.setText(`ОФОРМИТЬ ЗА ${state.totalPrice} ₽`);
@@ -411,14 +434,15 @@ async function createInvoice() {
     tg.MainButton.showProgress();
 
     try {
+        const days = state.months === 0.1 ? 3 : state.months * 30;
         const data = await apiCreateInvoice({
             tg_id: tg_id,
-            days: state.months === 0.1 ? 3 : state.months * 30,
+            days: days,
             amount: state.totalPrice,
             payment_method: state.paymentMethod,
             device_count: 1,
             gb_limit: state.gbLimit || 0,
-            tier: state.tier || 'premium'
+            tier: 'premium'  // unified — always premium (both configs)
         });
         if (data.status === "success" && data.pay_url) {
             if (data.pay_url.includes('t.me/')) {
@@ -457,7 +481,7 @@ async function payFromReferralBalance() {
     tg.MainButton.showProgress();
     try {
         const days = state.months === 0.1 ? 3 : state.months * 30;
-        const data = await apiPayFromReferral(tg_id, days, state.tier || 'premium', price);
+        const data = await apiPayFromReferral(tg_id, days, 'premium', price);
         if (data.status === "success") {
             tg.showAlert("✅ Подписка оформлена из реферального баланса!");
             tg.MainButton.hide();
@@ -543,21 +567,7 @@ async function buyTrafficFromReferral() {
     }
 }
 
-// ==================== GIFT ====================
-function selectGiftTier(tier) {
-    state.giftTier = tier;
-    document.getElementById('gift-tier-premium').classList.toggle('glass-active', tier === 'premium');
-    document.getElementById('gift-tier-standard').classList.toggle('glass-active', tier === 'standard');
-    // Update GB labels
-    if (tier === 'standard') {
-        [1,3,6,12].forEach(m => { const el = document.getElementById(`gift-gb-${m}`); if(el) el.innerText = '♾️ Безлимит'; });
-    } else {
-        const gbMap = {1:'100 ГБ', 3:'350 ГБ', 6:'800 ГБ', 12:'2 ТБ'};
-        [1,3,6,12].forEach(m => { const el = document.getElementById(`gift-gb-${m}`); if(el) el.innerText = gbMap[m]; });
-    }
-    updateGiftPrice();
-}
-
+// ==================== GIFT (UNIFIED) ====================
 function selectGiftDuration(m) {
     state.giftMonths = parseInt(m, 10);
     [1, 3, 6, 12].forEach(val => {
@@ -567,19 +577,15 @@ function selectGiftDuration(m) {
 }
 
 function updateGiftPrice() {
-    const prices = GIFT_PRICES[state.giftTier] || GIFT_PRICES.premium;
-    const price = prices[state.giftMonths] || prices[1];
+    const price = GIFT_PRICES[state.giftMonths] || GIFT_PRICES[1];
     
     const priceEl = document.getElementById('gift-total-price');
     if (priceEl) priceEl.innerText = price;
     const gbEl = document.getElementById('gift-total-gb');
     const gbParent = document.getElementById('gift-gb-info');
     if (gbParent) {
-        if (state.giftTier === 'standard') {
-            gbParent.innerHTML = '<div class="text-sm text-green-400 mt-1">♾️ Безлимитный трафик</div>';
-        } else {
-            gbParent.innerHTML = '<div class="text-sm text-blue-400 mt-1">+ <span id="gift-total-gb">' + (GB_LIMITS_GIFT[state.giftMonths] || 100) + '</span> ГБ</div>';
-        }
+        const gb = GIFT_GB[state.giftMonths] || 100;
+        gbParent.innerHTML = '<div class="text-sm text-blue-400 mt-1">+ <span id="gift-total-gb">' + gb + '</span> ГБ</div>';
     }
     return price;
 }
@@ -590,7 +596,7 @@ async function createGift() {
     
     try {
         const price = updateGiftPrice();
-        const data = await apiCreateGift(tg_id, state.giftTier, state.giftMonths, price, state.paymentMethod);
+        const data = await apiCreateGift(tg_id, 'premium', state.giftMonths, price, state.paymentMethod);
         if (data.status === "success" && data.pay_url) {
             if (data.pay_url.includes('t.me/')) tg.openTelegramLink(data.pay_url);
             else tg.openLink(data.pay_url);
@@ -627,7 +633,7 @@ async function giftFromReferral() {
         const data = await fetch(`${BACKEND_URL || 'https://nemovpn.cfd'}/api/gift_referral`, {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ tg_id, tier: state.giftTier, days, amount: price })
+            body: JSON.stringify({ tg_id, tier: 'premium', days, amount: price })
         }).then(r => r.json());
         
         if (data.status === "success" && data.gift_link) {
@@ -721,7 +727,6 @@ async function regenerateKey() {
         
         if (data.sub_url) {
             tg.showAlert("✅ Ключ перегенерирован! Обновите подписку в Happ.");
-            // Обновляем UI
             if (state.user) {
                 state.user.sub_url = data.sub_url;
                 updateProfileUI();
@@ -729,6 +734,93 @@ async function regenerateKey() {
         }
     } catch (err) {
         tg.showAlert("❌ " + (err.message || "Ошибка перегенерации"));
+    }
+}
+
+// ==================== STANDALONE CHECKOUT (NON-TG) ====================
+function initStandaloneCheckout() {
+    // Select 1 month by default
+    selectStandalonePlan('30');
+}
+
+const STANDALONE_PLANS = [
+    { days: 3, label: '3 дня', price: 200, gb: 10 },
+    { days: 30, label: '1 месяц', price: 500, gb: 100 },
+    { days: 90, label: '3 месяца', price: 1500, gb: 350 },
+    { days: 180, label: '6 месяцев', price: 2500, gb: 800 },
+    { days: 365, label: '1 год', price: 4500, gb: 2048 }
+];
+
+function selectStandalonePlan(days) {
+    state.selectedStandalonePlan = STANDALONE_PLANS.find(p => p.days === parseInt(days));
+    document.querySelectorAll('.standalone-plan').forEach(el => {
+        el.classList.toggle('glass-active', el.dataset.days === String(days));
+    });
+    const plan = state.selectedStandalonePlan;
+    if (plan) {
+        const priceEl = document.getElementById('standalone-total');
+        if (priceEl) priceEl.innerText = plan.price + ' ₽';
+        const gbEl = document.getElementById('standalone-gb');
+        if (gbEl) gbEl.innerText = plan.gb >= 1024 ? (plan.gb / 1024) + ' ТБ' : plan.gb + ' ГБ';
+    }
+}
+
+async function standaloneCheckout() {
+    const plan = state.selectedStandalonePlan;
+    if (!plan) return alert('Выберите план');
+
+    const method = state.paymentMethod;
+    if (!method) return alert('Выберите способ оплаты');
+
+    // Step 1: Register as guest
+    const regBtn = document.getElementById('standalone-pay-btn');
+    if (regBtn) { regBtn.disabled = true; regBtn.innerText = 'Регистрация...'; }
+
+    try {
+        const regData = await apiRegisterGuest();
+        if (!regData.user_id) {
+            alert('Ошибка регистрации. Попробуйте позже.');
+            if (regBtn) { regBtn.disabled = false; regBtn.innerText = '💰 Оплатить'; }
+            return;
+        }
+        state.guestUserId = regData.user_id;
+
+        // Step 2: Create invoice
+        if (regBtn) regBtn.innerText = 'Создание счёта...';
+        const invoiceData = await apiCreateInvoice({
+            user_id: regData.user_id,
+            days: plan.days,
+            amount: plan.price,
+            payment_method: method,
+            device_count: 1,
+            gb_limit: plan.gb,
+            tier: 'premium',
+            is_guest: true
+        });
+
+        if (invoiceData.status === 'success' && invoiceData.pay_url) {
+            // Redirect to payment page; on success, the callback will redirect to /pay_success
+            window.location.href = invoiceData.pay_url;
+        } else {
+            alert('Ошибка: ' + (invoiceData.error || 'Не удалось создать счёт'));
+            if (regBtn) { regBtn.disabled = false; regBtn.innerText = '💰 Оплатить'; }
+        }
+    } catch (err) {
+        alert('Ошибка: ' + (err.message || 'Сервер недоступен'));
+        if (regBtn) { regBtn.disabled = false; regBtn.innerText = '💰 Оплатить'; }
+    }
+}
+
+function standaloneSelectPayment(method) {
+    state.paymentMethod = method;
+    document.getElementById('sa-pay-cryptopay').classList.toggle('glass-active', method === 'cryptopay');
+    document.getElementById('sa-pay-platega').classList.toggle('glass-active', method === 'platega');
+}
+
+function copySubLink() {
+    const el = document.getElementById('success-sub-link');
+    if (el && el.innerText) {
+        navigator.clipboard.writeText(el.innerText).then(() => alert('✅ Ссылка скопирована!'));
     }
 }
 
@@ -740,21 +832,6 @@ tg.MainButton.onClick(() => {
 });
 
 // ==================== START ====================
-init();
-
-async function apiRegenerateKey(tg_id) {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/regenerate_key`, {
-            method: "POST",
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ tg_id })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Ошибка перегенерации");
-        return data;
-    } catch (error) {
-        console.error("API Error (regenerateKey):", error);
-        throw error;
-    }
+if (!checkPaySuccess()) {
+    init();
 }
-
