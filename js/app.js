@@ -84,7 +84,7 @@ async function init() {
 }
 
 // Check for /pay_success route
-function checkPaySuccess() {
+async function checkPaySuccess() {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get('user_id');
     if (userId && (window.location.pathname === '/pay_success' || window.location.hash === '#pay_success')) {
@@ -96,7 +96,17 @@ function checkPaySuccess() {
         if (successDiv) {
             successDiv.style.display = 'block';
             document.getElementById('success-user-id').innerText = userId;
-            document.getElementById('success-sub-link').innerText = `https://nemovpn.cfd/api/sub/${userId}`;
+            // Fetch real subscription URL from API
+            try {
+                const data = await apiGetUser(userId);
+                if (data.user && data.user.sub_url) {
+                    document.getElementById('success-sub-link').innerText = data.user.sub_url;
+                } else {
+                    document.getElementById('success-sub-link').innerText = 'Подписка обрабатывается... Обновите страницу через минуту.';
+                }
+            } catch (e) {
+                document.getElementById('success-sub-link').innerText = 'Не удалось загрузить ссылку. Обратитесь в поддержку.';
+            }
         }
         return true;
     }
@@ -307,6 +317,33 @@ function renderVPNKeys(u) {
             </div>
             <div class="bg-black/20 rounded p-2 text-xs text-purple-400 blur-sm truncate transition-all duration-300" onclick="event.stopPropagation(); toggleKeyBlur(this)">${u.vk_vless_link}</div>
         </div>`;
+    }
+
+    // Happ routing links
+    const hasPremium = u.premium_days > 0;
+    const hasStandard = u.standard_days > 0 || u.days_left > 0;
+    if (hasStandard || hasPremium) {
+        html += `<h2 class="text-sm uppercase tracking-wider text-green-400 mt-5 mb-3 pl-1">\u{1F6E1} Happ маршрутизация</h2>`;
+        if (hasStandard) {
+            html += `
+            <a href="https://sub.nemovpn.online/happ/standard" target="_blank" class="block glass rounded-2xl p-4 mb-3 transition hover:bg-white/10 border-green-500/20">
+                <div class="flex justify-between items-center">
+                    <div class="font-bold text-sm text-green-300">\u{1F310} Стандартный VPN (direct)</div>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-gray-500"></i>
+                </div>
+                <div class="text-xs text-gray-400 mt-1">Добавить правила маршрутизации для стандартного VPN</div>
+            </a>`;
+        }
+        if (hasPremium) {
+            html += `
+            <a href="https://sub.nemovpn.online/happ/premium" target="_blank" class="block glass rounded-2xl p-4 mb-3 transition hover:bg-white/10 border-blue-500/20">
+                <div class="flex justify-between items-center">
+                    <div class="font-bold text-sm text-blue-300">\u{1F310} Обход белых списков (proxy)</div>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-gray-500"></i>
+                </div>
+                <div class="text-xs text-gray-400 mt-1">Добавить правила маршрутизации для обхода белых списков</div>
+            </a>`;
+        }
     }
 
     keysContainer.innerHTML = html;
@@ -788,7 +825,7 @@ async function standaloneCheckout() {
         // Step 2: Create invoice
         if (regBtn) regBtn.innerText = 'Создание счёта...';
         const invoiceData = await apiCreateInvoice({
-            user_id: regData.user_id,
+            tg_id: regData.user_id,
             days: plan.days,
             amount: plan.price,
             payment_method: method,
@@ -832,6 +869,9 @@ tg.MainButton.onClick(() => {
 });
 
 // ==================== START ====================
-if (!checkPaySuccess()) {
-    init();
-}
+(async () => {
+    const wasPaySuccess = await checkPaySuccess();
+    if (!wasPaySuccess) {
+        init();
+    }
+})();
